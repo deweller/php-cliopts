@@ -52,8 +52,8 @@ class TextSpecParser {
       'short'      => $matches[1],
       'long'       => $matches[2],
       'value_name' => $matches[3],
-      'help'       => $matches[4],
-      'required'   => $matches[5] ? true : false,
+      'help'       => isset($matches[4]) ? $matches[4] : '',
+      'required'   => isset($matches[5]) ? true : false,
     );
     return $out;
   }

@@ -34,7 +34,7 @@ class ConsoleFormat {
 	* @param string $mode A mode such as "bold", "underline" or "plain"
 	* @return string conole text
 	*/
-	function mode() {
+	public static function mode() {
 		$mode_texts = func_get_args();
 
 		$code_text = '';

@@ -61,8 +61,13 @@ class ArgsValidator {
     // check for missing required items or argument values
     foreach($arguments_spec as $argument_spec) {
       $value_specified = (
-        (strlen($argument_spec['short']) AND strlen($parsed_args['options'][$argument_spec['short']]))
-        OR (strlen($argument_spec['long']) AND strlen($parsed_args['options'][$argument_spec['long']]))
+        (
+          isset($argument_spec['short']) AND strlen($argument_spec['short']) 
+          AND isset($parsed_args['options'][$argument_spec['short']]) AND strlen($parsed_args['options'][$argument_spec['short']])
+        ) OR (
+          isset($argument_spec['long']) AND strlen($argument_spec['long']) 
+          AND isset($parsed_args['options'][$argument_spec['long']]) AND strlen($parsed_args['options'][$argument_spec['long']])
+        )
       );
 
       if ($argument_spec['required']) {

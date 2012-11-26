@@ -132,7 +132,7 @@ class CLIOpts {
         // key exists
         if ($arguments_spec->expectsValue($key)) {
           // we are expecting a value, so read the next token as data
-          $next_token = $argv[$i + 1];
+          $next_token = isset($argv[$i + 1]) ? $argv[$i + 1] : null;
 
           if ($next_token !== null AND substr($next_token, 0, 1) != '-') {
             $data = $next_token;

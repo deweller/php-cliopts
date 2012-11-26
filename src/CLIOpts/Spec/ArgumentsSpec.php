@@ -50,7 +50,7 @@ class ArgumentsSpec extends ArrayIterator {
   public function resolveOptionToLongOptionName($key) {
     if ($key === null) { return null; }
     $map = $this->getLongOptionNameMap();
-    return $map[$key];
+    return isset($map[$key]) ? $map[$key] : null;
   }
 
 

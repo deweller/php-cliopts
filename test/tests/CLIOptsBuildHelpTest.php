@@ -52,6 +52,20 @@ class CLIOptsBuildHelpTest extends PHPUnit_Framework_TestCase {
   }
 
 
+  public function test_validateHelpStringWithoutDescription() {
+    $this->validateHelpString(
+      "-i <id>",
+
+      "-i <id>"
+    );
+
+    $this->validateHelpString(
+      "-i <id> (required)",
+
+      "-i <id> (required)"
+    );
+
+  }
 
 
 
