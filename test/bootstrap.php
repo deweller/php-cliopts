@@ -1,5 +1,5 @@
 <?php
 
 
-require('../vendor/autoload.php');
+require(__DIR_.'/../vendor/autoload.php');
 
