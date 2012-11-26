@@ -1,0 +1,108 @@
+<?php
+
+use CLIOpts\CLIOpts;
+
+class PargseArgsTest extends PHPUnit_Framework_TestCase {
+
+
+  public function testParseArgs01() {
+    $this->verifyParsedArgs(
+      '-i <id> specify an id (required)',
+
+      array('script.php', '-i', '100'),
+
+      array(
+        'self'     => 'script.php',
+        'options' => array('i' => '100'),
+        'data'     => array(),
+      )
+    );
+  }
+
+  public function testParseArgs02() {
+    $this->verifyParsedArgs(
+      '-i <id> specify an id (required)',
+
+      array('script.php', '-i', '100', 'randomData'),
+
+      array(
+        'self'     => 'script.php',
+        'options' => array('i' => '100'),
+        'data'     => array('randomData'),
+      )
+    );
+  }
+
+  public function testParseArgs03() {
+    $this->verifyParsedArgs(
+      '-i, --identifier <id> specify an id (required)',
+
+      array('script.php', '--identifier', '100', 'randomData'),
+
+      array(
+        'self'     => 'script.php',
+        'options' => array('identifier' => '100'),
+        'data'     => array('randomData'),
+      )
+    );
+  }
+
+  public function testParseArgs04() {
+    $this->verifyParsedArgs(
+      '-i, --identifier <id> specify an id (required)
+      -l list mode
+      ',
+
+      array('script.php', '-l', '-i', '100'),
+
+      array(
+        'self'     => 'script.php',
+        'options' => array('i' => '100', 'l' => false),
+        'data'     => array(),
+      )
+    );
+  }
+
+  public function testParseArgs05() {
+    $this->verifyParsedArgs(
+      '-i, --identifier <id> specify an id (required)
+      -l list mode
+      ',
+
+      array('script.php', '-l', 'middle_data', '-i', '100'),
+
+      array(
+        'self'     => 'script.php',
+        'options' => array('i' => '100', 'l' => false),
+        'data'     => array('middle_data'),
+      )
+    );
+  }
+
+  public function testParseArgs06() {
+    $this->verifyParsedArgs(
+      '--identifier <id> specify an id (required)',
+
+      array('script.php', '-i', '100'),
+
+      array(
+        'self'     => 'script.php',
+        'options' => array('i' => false),
+        'data'     => array('100'),
+      )
+    );
+  }
+
+
+  ////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////
+  // parse args
+
+  protected function verifyParsedArgs($text_spec, $fake_argv, $expected_result) {
+    $cli_opts = CLIOpts::createFromTextSpec($text_spec);
+    $this->assertEquals($expected_result, $cli_opts->parseArgv($fake_argv));
+  }
+
+
+ }
+

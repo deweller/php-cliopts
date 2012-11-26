@@ -1,0 +1,23 @@
+{
+    "name": "deweller/cliopts",
+    "description": "A no-nonsense command-line options parser and help generator for PHP CLI apps.",
+    "keywords": ["cli","command-line","getopt"],
+    "homepage": "https://github.com/deweller/php-cliopts",
+    "type": "library",
+    "license": "Apache-2.0",
+    "authors": [
+        {
+            "name": "Devon Weller",
+            "email": "dweller@devonweller.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.0"
+    },
+
+    "autoload": {
+        "psr-0": {
+            "CLIOpts": "src"
+        }
+    }
+}
