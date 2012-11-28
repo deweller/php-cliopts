@@ -64,6 +64,16 @@ class ArgumentValues extends ArrayIterator {
     return parent::offsetExists($resolved_key);
   }
 
+  public function getData($key) {
+    if (isset($this->parsed_args['data'][$key])) {
+      return $this->parsed_args['data'][$key];
+    }
+    if (is_int($key) AND isset($this->parsed_args['numbered_data'][$key])) {
+      return $this->parsed_args['numbered_data'][$key];
+    }
+    return null;
+  }
+
   //////////////////////////////////////////////////////////////////////////////////////
   // Private/Protected Methods
   //////////////////////////////////////////////////////////////////////////////////////

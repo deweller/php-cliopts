@@ -2,7 +2,7 @@
 
 use CLIOpts\CLIOpts;
 
-class CLIOptsValidationTest extends PHPUnit_Framework_TestCase {
+class ValidationTest extends PHPUnit_Framework_TestCase {
 
 
 
@@ -94,6 +94,36 @@ class CLIOptsValidationTest extends PHPUnit_Framework_TestCase {
     );
   }
 
+  public function test_validateRequiredValues() {
+
+    $this->validateOptsValidationFails(
+      "Usage: {self} <url1>",
+
+      array('script.php'),
+
+      'No value for <url1> was provided'
+    );
+
+  }
+
+  public function test_validateExtraValues() {
+
+    $this->validateOptsValidationFails(
+      "Usage: {self} <url1>",
+
+      array('script.php', 'bar1', 'bar2'),
+
+      '1 unexpected value'
+    );
+    $this->validateOptsValidationFails(
+      "Usage: {self} <url1>",
+
+      array('script.php', 'bar1', 'bar2', 'bar3'),
+
+      '2 unexpected values'
+    );
+
+  }
 
 
 

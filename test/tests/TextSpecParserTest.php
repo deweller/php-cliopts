@@ -117,6 +117,49 @@ EOT;
       
     }
 
+  public function test_ParseUsageLine01() {
+    $this->checkUsageLine(
+      'Usage: {self} [options] <url>',
+
+      array(
+        'use_argv_self' => true,
+        'self'          => '{self}',
+        'value_specs'   => array(array('name'=>'url', 'required' => true)),
+      )
+    );
+
+  } 
+  public function test_ParseUsageLine02() {
+    $this->checkUsageLine(
+      'Usage: {self} [options] <url> <url2>',
+
+      array(
+        'use_argv_self' => true,
+        'self'          => '{self}',
+        'value_specs'   => array(
+          array('name'=>'url', 'required' => true),
+          array('name'=>'url2', 'required' => true),
+        ),
+      )
+    );
+  } 
+
+  public function test_ParseUsageLine03() {
+    $this->checkUsageLine(
+      'Usage: {self} [options] [<url>] <url2> [<url3>]',
+
+      array(
+        'use_argv_self' => true,
+        'self'          => '{self}',
+        'value_specs'   => array(
+          array('name'=>'url', 'required' => false),
+          array('name'=>'url2', 'required' => true),
+          array('name'=>'url3', 'required' => false),
+        ),
+      )
+    );
+  } 
+
   ////////////////////////////////////////////////////////////////////////
   ////////////////////////////////////////////////////////////////////////
   // function
@@ -124,6 +167,10 @@ EOT;
   protected function checkSpecTextLine($text, $expected_array) {
     $this->assertEquals($expected_array, TextSpecParser::createParameterSpecFromLine($text));
   }  
+
+  protected function checkUsageLine($usage_line_text, $expected_data) {
+    $this->assertEquals($expected_data, TextSpecParser::parseUsageLine($usage_line_text));
+  } 
   
 
 }

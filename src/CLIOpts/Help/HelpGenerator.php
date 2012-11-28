@@ -33,12 +33,20 @@ class HelpGenerator {
   //////////////////////////////////////////////////////////////////////////////////////
 
   public function build($self_name=null) {
-    if ($self_name === null) { $self_name = $_SERVER['argv'][0]; }
-    $out_text = "Usage: {$self_name}\n";
-
     $help_lines_data = $this->getHelpLinesData();
-    foreach($help_lines_data['lines'] as $help_line_data) {
-      $out_text .= $this->formatHelpLine($help_line_data, $help_lines_data)."\n";
+
+    $out_text = 
+      $this->buildUsageLine($this->arguments_spec->getUsage(), $help_lines_data, $self_name);
+
+    $options_text = '';
+    if ($help_lines_data['lines']) {
+      foreach($help_lines_data['lines'] as $help_line_data) {
+        $options_text .= $this->formatHelpLine($help_line_data, $help_lines_data)."\n";
+      }
+
+      $out_text .= 
+        "Options:\n".
+        $options_text;
     }
 
     return $out_text;
@@ -49,6 +57,48 @@ class HelpGenerator {
   //////////////////////////////////////////////////////////////////////////////////////
   // Private/Protected Methods
   //////////////////////////////////////////////////////////////////////////////////////
+
+  protected function buildUsageLine($usage_data, $help_lines_data, $argv_self=null) {
+    if ($usage_data['use_argv_self']) {
+      if ($argv_self === null) {
+        $self_name = $_SERVER['argv'][0];
+      } else {
+        $self_name = $argv_self;
+      }
+    } else {
+      $self_name = $usage_data['self'];
+    }
+
+    $has_options = (count($help_lines_data['lines']) > 0 ? true : false);
+    $has_value_specs = (count($usage_data['value_specs']) > 0 ? true : false);
+
+    $out = 
+      "Usage: {$self_name}".
+      ($has_options ? ' [options]' : '').
+      ($has_value_specs ? ' '.$this->generateValueNamesHelp($usage_data['value_specs']) : '').
+      "\n";
+
+    return $out;
+  }
+
+  protected function generateValueNamesHelp($value_specs) {
+    $first = true;
+    $out = '';
+
+    foreach($value_specs as $value_spec) {
+      $out .= ($first ? '' : ' ');
+
+      if ($value_spec['required']) {
+        $out .= '<'.$value_spec['name'].'>';
+      } else {
+        $out .= '[<'.$value_spec['name'].'>]';
+      }
+
+      $first = false;
+    }
+
+    return $out;
+  }
 
   protected function getHelpLinesData() {
     if (!isset($this->help_lines_data)) {
@@ -125,45 +175,3 @@ class HelpGenerator {
 
 }
 
-/*
-  protected function _buildHelp() {
-    $clo = $this->parseCommandLineOptions();
-
-    
-    $help_lines = array();
-    $help_descriptions = array();
-    $sort_map = array();
-    $max_length = 0;
-    foreach ($this->argument_specs as $offset => $argument_spec) {
-      $help_line = $this->buildArgumentLineHelp($argument_spec);
-      $max_length = max($max_length, strlen(preg_replace("!".chr(27)."\[0;[0-9]*m!", "", $help_line)));
-      $help_lines[] = $help_line;
-      $help_descriptions[] = (strlen($argument_spec['help_description']) ? "- ".$argument_spec['help_description'] : "");
-
-      if (strlen($argument_spec['short'])) {
-        $sort_map[$argument_spec['short']] = $offset;
-      } else if (strlen($argument_spec['long'])) {
-        $sort_map[$argument_spec['long']] = $offset;
-      }
-    }
-
-    // sort by argument   
-    ksort($sort_map);
-    $sorted_help_lines = array();
-    $sorted_help_descriptions = array();
-    foreach ($sort_map as $arg => $offset) {
-      $sorted_help_lines[] = $help_lines[$offset];
-      $sorted_help_descriptions[] = $help_descriptions[$offset];
-    }
-    
-    
-    $padding = $max_length + 2;
-    foreach ($sorted_help_lines as $offset => $help_line) {
-      $length = strlen(preg_replace("!".chr(27)."\[0;[0-9]*m!", "", $help_line));
-      $pad = str_repeat(" ", $padding - $length);
-      $out .= "         ".$help_line.$pad.$sorted_help_descriptions[$offset]."\n";
-    }
-
-    return $out;
-  }
-*/  

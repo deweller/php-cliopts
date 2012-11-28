@@ -12,9 +12,10 @@ class PargseArgsTest extends PHPUnit_Framework_TestCase {
       array('script.php', '-i', '100'),
 
       array(
-        'self'     => 'script.php',
-        'options' => array('i' => '100'),
-        'data'     => array(),
+        'self'          => 'script.php',
+        'options'       => array('i' => '100'),
+        'data'          => array(),
+        'numbered_data' => array(),
       )
     );
   }
@@ -26,9 +27,10 @@ class PargseArgsTest extends PHPUnit_Framework_TestCase {
       array('script.php', '-i', '100', 'randomData'),
 
       array(
-        'self'     => 'script.php',
-        'options' => array('i' => '100'),
-        'data'     => array('randomData'),
+        'self'          => 'script.php',
+        'options'       => array('i' => '100'),
+        'data'          => array(),
+        'numbered_data' => array('randomData'),
       )
     );
   }
@@ -40,9 +42,10 @@ class PargseArgsTest extends PHPUnit_Framework_TestCase {
       array('script.php', '--identifier', '100', 'randomData'),
 
       array(
-        'self'     => 'script.php',
-        'options' => array('identifier' => '100'),
-        'data'     => array('randomData'),
+        'self'          => 'script.php',
+        'options'       => array('identifier' => '100'),
+        'data'          => array(),
+        'numbered_data' => array('randomData'),
       )
     );
   }
@@ -56,9 +59,10 @@ class PargseArgsTest extends PHPUnit_Framework_TestCase {
       array('script.php', '-l', '-i', '100'),
 
       array(
-        'self'     => 'script.php',
-        'options' => array('i' => '100', 'l' => false),
-        'data'     => array(),
+        'self'          => 'script.php',
+        'options'       => array('i' => '100', 'l' => false),
+        'data'          => array(),
+        'numbered_data' => array(),
       )
     );
   }
@@ -72,9 +76,10 @@ class PargseArgsTest extends PHPUnit_Framework_TestCase {
       array('script.php', '-l', 'middle_data', '-i', '100'),
 
       array(
-        'self'     => 'script.php',
-        'options' => array('i' => '100', 'l' => false),
-        'data'     => array('middle_data'),
+        'self'          => 'script.php',
+        'options'       => array('i' => '100', 'l' => false),
+        'data'          => array(),
+        'numbered_data' => array('middle_data'),
       )
     );
   }
@@ -86,9 +91,10 @@ class PargseArgsTest extends PHPUnit_Framework_TestCase {
       array('script.php', '-i', '100'),
 
       array(
-        'self'     => 'script.php',
-        'options' => array('i' => false),
-        'data'     => array('100'),
+        'self'          => 'script.php',
+        'options'       => array('i' => false),
+        'data'          => array(),
+        'numbered_data' => array('100'),
       )
     );
   }

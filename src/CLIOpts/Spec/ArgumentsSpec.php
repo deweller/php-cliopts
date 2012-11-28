@@ -13,14 +13,10 @@ class ArgumentsSpec extends ArrayIterator {
   protected $argument_spec_data;
   protected $spec_data_by_name = null;
 
-  public function __construct($argument_spec_data = null) {
-    if ($argument_spec_data === null) {
-      $this->argument_spec_data = array();
-    } else {
-      $this->argument_spec_data = $argument_spec_data;
-    }
+  public function __construct($argument_spec_data ) {
+    $this->argument_spec_data = $argument_spec_data;
 
-    parent::__construct($this->argument_spec_data);
+    parent::__construct($this->argument_spec_data['options']);
   }
 
   //////////////////////////////////////////////////////////////////////////////////////
@@ -53,7 +49,9 @@ class ArgumentsSpec extends ArrayIterator {
     return isset($map[$key]) ? $map[$key] : null;
   }
 
-
+  public function getUsage() {
+    return $this->argument_spec_data['usage'];
+  }
 
   //////////////////////////////////////////////////////////////////////////////////////
   // Private/Protected Methods
@@ -63,7 +61,7 @@ class ArgumentsSpec extends ArrayIterator {
     if (!isset($this->spec_data_by_name)) {
 
       $this->spec_data_by_name = array();
-      foreach ($this->argument_spec_data as $argument_spec) {
+      foreach ($this->argument_spec_data['options'] as $argument_spec) {
         if (strlen($argument_spec['short'])) { $this->spec_data_by_name[$argument_spec['short']] = $argument_spec; }
         if (strlen($argument_spec['long'])) { $this->spec_data_by_name[$argument_spec['long']] = $argument_spec; }
       }
@@ -77,7 +75,7 @@ class ArgumentsSpec extends ArrayIterator {
     if (!isset($this->long_option_name_map)) {
       $this->long_option_name_map = array();
 
-      foreach ($this->argument_spec_data as $argument_spec) {
+      foreach ($this->argument_spec_data['options'] as $argument_spec) {
         $long_name = $argument_spec['long'];
         if (strlen($long_name)) {
           $this->long_option_name_map[$long_name] = $long_name;

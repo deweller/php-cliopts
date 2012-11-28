@@ -104,13 +104,56 @@ class CLIOptsTest extends PHPUnit_Framework_TestCase {
     $this->assertEquals('100', $values['identifier']);
   }
 
+  public function test_getOpts08() {
+    $values = $this->verifyOpts(
+      '{self} <value1>
+      -l, --list list mode',
+
+      array('script.php', '-l', 'bar1'),
+
+      array('list' => false,),
+      array(0 => 'bar1', 'value1' => 'bar1')
+
+    );
+
+    $this->assertEquals(false, $values['l']);
+    $this->assertEquals(false, $values['list']);
+    $this->assertEquals('bar1', $values->getData(0));
+    $this->assertEquals('bar1', $values->getData('value1'));
+  }
+
+  public function test_getOpts09() {
+    $values = $this->verifyOpts(
+      '{self} <value1> [<value2>]
+      -i, --identifier <id> specify an id (required)
+      -l, --list list mode',
+
+      array('script.php', '-i', '100', '-l', 'bar1', 'bar2', 'bar3'),
+
+      array('identifier' => '100', 'list' => false,),
+
+      array(0 => 'bar1', 'value1' => 'bar1', 1 => 'bar2', 'value2' => 'bar2', 2 => 'bar3')
+    );
+
+    $this->assertEquals(false, $values['l']);
+    $this->assertEquals(false, $values['list']);
+    $this->assertEquals('bar1', $values->getData(0));
+    $this->assertEquals('bar1', $values->getData('value1'));
+  }
+
   ////////////////////////////////////////////////////////////////////////
   ////////////////////////////////////////////////////////////////////////
   // functions
 
-  protected function verifyOpts($text_spec, $fake_argv, $expected_values) {
+  protected function verifyOpts($text_spec, $fake_argv, $expected_values, $expected_data=null) {
     $values = CLIOpts::getOpts($text_spec, $fake_argv);
     $this->assertEquals($expected_values, iterator_to_array($values));
+
+    if ($expected_data !== null) {
+      foreach($expected_data as $expected_data_key => $expected_data_val) {
+        $this->assertEquals($expected_data_val, $values->getData($expected_data_key));
+      }
+    }
 
     return $values;
   }

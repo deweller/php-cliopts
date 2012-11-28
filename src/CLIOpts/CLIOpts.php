@@ -105,12 +105,15 @@ class CLIOpts {
   * @return array A hash of command switches to values. 
   */
   protected function parseArgvWithSpec($argv, $arguments_spec) {
+    $data_offset_count = 0;
+    $usage = $arguments_spec->getUsage();
 
     // start with self
     $args_out = array(
-      'self'     => $argv[0],
-      'options' => array(),
-      'data'     => array(),
+      'self'          => $argv[0],
+      'options'       => array(),
+      'data'          => array(),
+      'numbered_data' => array(),
     );
   
     $count = count($argv);
@@ -155,7 +158,13 @@ class CLIOpts {
         $i = $i + ($data === false ? 1 : 2);
       } else {
         // no key - this is data without a switch
-        $args_out['data'][] = $data;
+        $args_out['numbered_data'][$data_offset_count] = $data;
+
+        if (isset($usage['value_specs'][$data_offset_count])) {  
+          $args_out['data'][$usage['value_specs'][$data_offset_count]['name']] = $data;
+        }
+
+        ++$data_offset_count;
         ++$i;
       }
 

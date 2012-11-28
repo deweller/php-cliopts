@@ -3,7 +3,7 @@
 use CLIOpts\CLIOpts;
 use CLIOpts\Help\ConsoleFormat;
 
-class CLIOptsBuildHelpTest extends PHPUnit_Framework_TestCase {
+class BuildHelpTest extends PHPUnit_Framework_TestCase {
 
 
 
@@ -69,6 +69,60 @@ class CLIOptsBuildHelpTest extends PHPUnit_Framework_TestCase {
 
 
 
+  public function test_validateSelfName() {
+    $this->validateHelpString(
+      "Usage: customScriptName [options] <url>
+      -i <id> (required)",
+
+      "Usage: customScriptName [options] <url>\n".
+      "Options:\n".
+      "-i <id> (required)"
+    );
+  }
+
+
+  public function test_validateHelpStringWithValueNames() {
+    $this->validateHelpString(
+      "Usage: {self} [options] <url>
+      -i <id> (required)",
+
+      "Usage: ./script.php [options] <url>\n".
+      "Options:\n".
+      "-i <id> (required)"
+    );
+    $this->validateHelpString(
+      "Usage: {self} [options] <url> <url2>
+      -i <id> (required)",
+
+      "Usage: ./script.php [options] <url> <url2>\n".
+      "Options:\n".
+      "-i <id> (required)"
+    );
+  }
+
+  public function test_validateHelpStringWithNoOptions() {
+    $this->validateHelpString(
+      "Usage: {self} <url>",
+
+      "Usage: ./script.php <url>"
+    );
+    $this->validateHelpString(
+      "Usage: {self} <url> <url 2>",
+
+      "Usage: ./script.php <url> <url 2>"
+    );
+  }
+
+  public function test_validateOptionalValueNames() {
+    $this->validateHelpString(
+      "Usage: {self} <url> [<url2>]",
+
+      "Usage: ./script.php <url> [<url2>]"
+    );
+  }
+
+
+
   ////////////////////////////////////////////////////////////////////////
   ////////////////////////////////////////////////////////////////////////
   // validateOptsValidationFails
@@ -77,9 +131,12 @@ class CLIOptsBuildHelpTest extends PHPUnit_Framework_TestCase {
   protected function validateHelpString($text_spec, $expected_help_text=null) {
     $cli_opts = CLIOpts::createFromTextSpec($text_spec);
     if ($expected_help_text === null) {
-      $expected_help_text = "Usage: ./script.php\n".trim($text_spec);
+      $expected_help_text = "Usage: ./script.php [options]\nOptions:\n".trim($text_spec);
     } else {
-      $expected_help_text = "Usage: ./script.php\n".trim($expected_help_text);
+      $expected_help_text = trim($expected_help_text);
+      if (substr($expected_help_text, 0, 7) != 'Usage: ') {
+        $expected_help_text = "Usage: ./script.php [options]\nOptions:\n".$expected_help_text;
+      }
     }
 
     $actual_help_text = $cli_opts->buildHelpText('./script.php');

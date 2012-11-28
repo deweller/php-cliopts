@@ -95,6 +95,25 @@ class ArgsValidator {
     }
 
 
+    // data
+    $usage_data = $arguments_spec->getUsage();
+
+    // find required arguments
+    foreach ($usage_data['value_specs'] as $offset => $value_spec) {
+      if ($value_spec['required'] AND !isset($parsed_args['data'][$offset])) {
+        $is_valid = false;
+        $this->errors[] = "No value for <".$value_spec['name']."> was provided.";
+      }
+    }
+
+    // find extra arguments
+    $expected_values_count = count($usage_data['value_specs']);
+    if (($data_count = count($parsed_args['numbered_data'])) > $expected_values_count) {
+      $extra_count = $data_count - $expected_values_count;
+      $is_valid = false;
+      $this->errors[] = "Found $extra_count unexpected value".($extra_count == 1 ? '' : 's').".";
+    }
+
     return $is_valid;
   }
 
