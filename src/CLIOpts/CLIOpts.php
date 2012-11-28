@@ -3,6 +3,7 @@
 namespace CLIOpts;
 
 use CLIOpts\Parser\TextSpecParser;
+use CLIOpts\Help\ConsoleFormat;
 use CLIOpts\Help\HelpGenerator;
 use CLIOpts\Spec\ArgumentsSpec;
 use CLIOpts\Values\ArgumentValues;
@@ -43,10 +44,10 @@ class CLIOpts {
   * returns an associative array of switch => data
   * @return array associative array
   */
-  static function getOpts($arguments_spec_text, $argv=null) {
+  public static function getOpts($arguments_spec_text, $argv=null) {
     return
       self::createFromArgumentsSpec(TextSpecParser::createArgumentsSpec($arguments_spec_text))
-      ->buildArgumentValues($argv);
+      ->getOptsValues($argv);
   }
 
 
@@ -55,7 +56,7 @@ class CLIOpts {
 // Public Methods
 //////////////////////////////////////////////////////////////////////////////////////
   
-  public function buildArgumentValues($argv=null) {
+  public function getOptsValues($argv=null) {
     $parsed_args = $this->parseArgv($this->resolveArgv($argv));
     return new ArgumentValues($this->arguments_spec, $parsed_args);
   }
@@ -78,11 +79,33 @@ class CLIOpts {
   * shows help text and exits
   * @return void
   */
-  static function showHelpTextAndExit() {
-    print self::buildHelpText();
+  public function showHelpTextAndExit() {
+    print $this->buildHelpText();
     exit(0);
   }
   
+
+  public function run($with_validation=true, $with_help=true) {
+    // get the values
+    $values = $this->getOptsValues();
+
+
+    // check for the help switch before checking for valid values
+    if ($with_help AND isset($values['help'])) {
+      $this->showHelpTextAndExit();
+    }
+
+
+    // check validation.  Then generate help and exit if not valid.
+    if (!$values->isValid()) {
+      print ConsoleFormat::applyformatToText('red','bold','Errors:')."\n";
+      $values->showValidationErrors();
+      print "\n";
+      $this->showHelpTextAndExit();
+    }
+
+    return $values;
+  }
 
 
 //////////////////////////////////////////////////////////////////////////////////////

@@ -81,6 +81,13 @@ class ValidationTest extends PHPUnit_Framework_TestCase {
     );
   }
 
+  public function test_validateOptions08() {
+    $this->validateOptsValidationSucceeds(
+      '-i, --identifier <id> specify an id',
+      array('script.php')
+    );
+  }
+
   public function test_validateFindExtraOptions() {
     $this->validateOptsValidationFails(
       '-i, --identifier <id> specify an id',
@@ -94,7 +101,7 @@ class ValidationTest extends PHPUnit_Framework_TestCase {
     );
   }
 
-  public function test_validateRequiredValues() {
+  public function test_validateRequiredValuesFails() {
 
     $this->validateOptsValidationFails(
       "Usage: {self} <url1>",
@@ -102,6 +109,15 @@ class ValidationTest extends PHPUnit_Framework_TestCase {
       array('script.php'),
 
       'No value for <url1> was provided'
+    );
+
+  }
+
+  public function test_validateRequiredValuesSucceeds() {
+    $this->validateOptsValidationSucceeds(
+      "Usage: {self} <url1>",
+
+      array('script.php', 'bar')
     );
 
   }

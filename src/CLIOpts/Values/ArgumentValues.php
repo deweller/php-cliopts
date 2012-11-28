@@ -4,6 +4,7 @@ namespace CLIOpts\Values;
 
 use CLIOpts\Spec\ArgumentsSpec;
 use CLIOpts\Validation\ArgsValidator;
+use CLIOpts\Help\ConsoleFormat;
 
 use \ArrayIterator;
 
@@ -17,6 +18,8 @@ class ArgumentValues extends ArrayIterator {
   protected $parsed_args;
   protected $validator;
 
+  protected $merged_arg_values;
+
   function __construct(ArgumentsSpec $arguments_spec, $parsed_args) {
     $this->arguments_spec = $arguments_spec;
     $this->parsed_args = $parsed_args;
@@ -25,9 +28,15 @@ class ArgumentValues extends ArrayIterator {
     $this->validator = new ArgsValidator($arguments_spec, $parsed_args);
 
     // get the argument values
+    $arg_values = $this->extractArgumentValuesByName($arguments_spec, $parsed_args);
+
+    // get the option values
     $long_opts = $this->extractAllLongOpts($arguments_spec, $parsed_args);
 
-    parent::__construct($long_opts);
+    $this->merged_arg_values = array_merge($arg_values, $long_opts);
+
+
+    parent::__construct($this->merged_arg_values);
   }
 
 
@@ -52,26 +61,39 @@ class ArgumentValues extends ArrayIterator {
     return $this->validator->getErrors();
   }
 
+  public function showValidationErrors() {
+    print ConsoleFormat::mode('red');
+    print implode("\n", $this->getValidationErrors())."\n";
+    print ConsoleFormat::mode('plain');
+  }
+
   public function offsetGet($key) {
+
     $resolved_key = $this->arguments_spec->resolveOptionToLongOptionName($key);
-    if ($resolved_key === null) { return false; }
-    return parent::offsetGet($resolved_key);
+    if ($resolved_key === null) {
+      if (isset($this->merged_arg_values[$key])) {
+        return parent::offsetGet($key);
+      }
+    }
+
+    if (isset($this->merged_arg_values[$resolved_key])) {
+      return parent::offsetGet($resolved_key);
+    }
+
+    return null;
   }
 
   public function offsetExists($key) {
     $resolved_key = $this->arguments_spec->resolveOptionToLongOptionName($key);
-    if ($resolved_key === null) { return false; }
-    return parent::offsetExists($resolved_key);
+    if ($resolved_key === null) {
+      return isset($this->merged_arg_values[$key]);
+    }
+
+    return isset($this->merged_arg_values[$resolved_key]);
   }
 
-  public function getData($key) {
-    if (isset($this->parsed_args['data'][$key])) {
-      return $this->parsed_args['data'][$key];
-    }
-    if (is_int($key) AND isset($this->parsed_args['numbered_data'][$key])) {
-      return $this->parsed_args['numbered_data'][$key];
-    }
-    return null;
+  public function getAllDataByOffset() {
+    return $this->parsed_args['numbered_data'];
   }
 
   //////////////////////////////////////////////////////////////////////////////////////
@@ -88,6 +110,10 @@ class ArgumentValues extends ArrayIterator {
     }
 
     return $long_opts;
+  }
+
+  protected function extractArgumentValuesByName($arguments_spec, $parsed_args) {
+    return $parsed_args['data'];
   }
 
 }

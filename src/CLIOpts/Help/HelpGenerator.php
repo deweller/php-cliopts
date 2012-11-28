@@ -45,7 +45,8 @@ class HelpGenerator {
       }
 
       $out_text .= 
-        "Options:\n".
+        "\n".
+        ConsoleFormat::applyformatToText('bold','cyan','Options:')."\n".
         $options_text;
     }
 
@@ -73,7 +74,8 @@ class HelpGenerator {
     $has_value_specs = (count($usage_data['value_specs']) > 0 ? true : false);
 
     $out = 
-      "Usage: {$self_name}".
+      ConsoleFormat::applyformatToText('bold','cyan',"Usage:")."\n".
+      "  {$self_name}".
       ($has_options ? ' [options]' : '').
       ($has_value_specs ? ' '.$this->generateValueNamesHelp($usage_data['value_specs']) : '').
       "\n";
@@ -89,7 +91,7 @@ class HelpGenerator {
       $out .= ($first ? '' : ' ');
 
       if ($value_spec['required']) {
-        $out .= '<'.$value_spec['name'].'>';
+        $out .= ConsoleFormat::applyformatToText('bold','yellow','<'.$value_spec['name'].'>');
       } else {
         $out .= '[<'.$value_spec['name'].'>]';
       }
@@ -130,14 +132,6 @@ class HelpGenerator {
       $switch_text .= ($switch_text ? ", " : "")."--".$argument_spec['long'];
     }
 
-/*
-    if ($argument_spec['required']) {
-      $out = Console::consoleMode('bold')."[".$out.$value_description."]".Console::consoleMode('plain');
-    } else {
-      $out = "[".$out.$value_description."]";
-    }
-*/  
-
     $data = array(
       'switch_text' => $switch_text.(strlen($argument_spec['value_name']) ? ' <'.$argument_spec['value_name'].'>' : ''),
       'spec'        => $argument_spec,
@@ -167,10 +161,10 @@ class HelpGenerator {
 
     // surround in bold if required
     if ($required) {
-      $out = ConsoleFormat::mode('bold').$out.ConsoleFormat::mode('plain');
+      $out = ConsoleFormat::applyformatToText('bold','yellow',$out);
     }
 
-    return $out;
+    return '  '.$out;
   }
 
 }

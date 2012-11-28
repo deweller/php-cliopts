@@ -119,7 +119,7 @@ class TextSpecParser {
 
 
     $out = array(
-      'use_argv_self' => ($matches[1] == '{self}' ? true : false),
+      'use_argv_self' => (($matches[1] === '{self}' OR $matches[1] === '') ? true : false),
       'self'          => $matches[1],
       'value_specs'   => $value_specs,
     );

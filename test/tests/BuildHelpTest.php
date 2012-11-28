@@ -74,7 +74,7 @@ class BuildHelpTest extends PHPUnit_Framework_TestCase {
       "Usage: customScriptName [options] <url>
       -i <id> (required)",
 
-      "Usage: customScriptName [options] <url>\n".
+      "Usage:\ncustomScriptName [options] <url>\n\n".
       "Options:\n".
       "-i <id> (required)"
     );
@@ -86,7 +86,7 @@ class BuildHelpTest extends PHPUnit_Framework_TestCase {
       "Usage: {self} [options] <url>
       -i <id> (required)",
 
-      "Usage: ./script.php [options] <url>\n".
+      "Usage:\n./script.php [options] <url>\n\n".
       "Options:\n".
       "-i <id> (required)"
     );
@@ -94,7 +94,7 @@ class BuildHelpTest extends PHPUnit_Framework_TestCase {
       "Usage: {self} [options] <url> <url2>
       -i <id> (required)",
 
-      "Usage: ./script.php [options] <url> <url2>\n".
+      "Usage:\n./script.php [options] <url> <url2>\n\n".
       "Options:\n".
       "-i <id> (required)"
     );
@@ -104,12 +104,12 @@ class BuildHelpTest extends PHPUnit_Framework_TestCase {
     $this->validateHelpString(
       "Usage: {self} <url>",
 
-      "Usage: ./script.php <url>"
+      "Usage:\n./script.php <url>"
     );
     $this->validateHelpString(
       "Usage: {self} <url> <url 2>",
 
-      "Usage: ./script.php <url> <url 2>"
+      "Usage:\n./script.php <url> <url 2>"
     );
   }
 
@@ -117,7 +117,16 @@ class BuildHelpTest extends PHPUnit_Framework_TestCase {
     $this->validateHelpString(
       "Usage: {self} <url> [<url2>]",
 
-      "Usage: ./script.php <url> [<url2>]"
+      "Usage:\n./script.php <url> [<url2>]"
+    );
+  }
+
+
+  public function test_noSelfProvided() {
+    $this->validateHelpString(
+      "<url> [<url2>]",
+
+      "Usage:\n./script.php <url> [<url2>]"
     );
   }
 
@@ -131,16 +140,17 @@ class BuildHelpTest extends PHPUnit_Framework_TestCase {
   protected function validateHelpString($text_spec, $expected_help_text=null) {
     $cli_opts = CLIOpts::createFromTextSpec($text_spec);
     if ($expected_help_text === null) {
-      $expected_help_text = "Usage: ./script.php [options]\nOptions:\n".trim($text_spec);
+      $expected_help_text = "Usage:\n./script.php [options]\n\nOptions:\n".trim($text_spec);
     } else {
       $expected_help_text = trim($expected_help_text);
-      if (substr($expected_help_text, 0, 7) != 'Usage: ') {
-        $expected_help_text = "Usage: ./script.php [options]\nOptions:\n".$expected_help_text;
+      if (substr($expected_help_text, 0, 6) != 'Usage:') {
+        $expected_help_text = "Usage:\n./script.php [options]\n\nOptions:\n".$expected_help_text;
       }
     }
 
     $actual_help_text = $cli_opts->buildHelpText('./script.php');
-    $actual_help_text = str_replace(array(ConsoleFormat::mode('bold'), ConsoleFormat::mode('plain')), '', $actual_help_text);
+    $actual_help_text = preg_replace('!\x1b\[0;.*?m!', '', $actual_help_text);
+    $actual_help_text = str_replace("\n  ","\n", $actual_help_text);
 
     $this->assertEquals(trim($expected_help_text), trim($actual_help_text));
   }

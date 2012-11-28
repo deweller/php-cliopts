@@ -160,6 +160,18 @@ EOT;
     );
   } 
 
+  public function test_ParseUsageLine04() {
+    $this->checkUsageLine(
+      '<url>',
+
+      array(
+        'use_argv_self' => true,
+        'self'          => '',
+        'value_specs'   => array(array('name'=>'url', 'required' => true)),
+      )
+    );
+  } 
+
   ////////////////////////////////////////////////////////////////////////
   ////////////////////////////////////////////////////////////////////////
   // function

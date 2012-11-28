@@ -78,9 +78,16 @@ class ArgsValidator {
         }
       } else if (strlen($argument_spec['value_name'])) {
         if (!$value_specified) {
-          // not required, but a value name is specified and none was given
-          $is_valid = false;
-          $this->errors[] = "No value was specified for argument ".$this->longOptionName($argument_spec).".";
+          $switch_was_sepcified = (
+            isset($parsed_args['options'][$argument_spec['short']]) AND isset($parsed_args['options'][$argument_spec['short']])
+            OR isset($parsed_args['options'][$argument_spec['long']]) AND isset($parsed_args['options'][$argument_spec['long']])
+          );
+
+          if ($switch_was_sepcified) {
+            // not required, but a value name is specified and none was given
+            $is_valid = false;
+            $this->errors[] = "No value was specified for argument ".$this->longOptionName($argument_spec).".";
+          }
         }
       }
     }
@@ -100,7 +107,7 @@ class ArgsValidator {
 
     // find required arguments
     foreach ($usage_data['value_specs'] as $offset => $value_spec) {
-      if ($value_spec['required'] AND !isset($parsed_args['data'][$offset])) {
+      if ($value_spec['required'] AND !isset($parsed_args['numbered_data'][$offset])) {
         $is_valid = false;
         $this->errors[] = "No value for <".$value_spec['name']."> was provided.";
       }
