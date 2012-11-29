@@ -1,6 +1,9 @@
 <?php
 
 use CLIOpts\CLIOpts;
+use CLIOpts\ArgumentsParser\ArgumentsParser;
+use CLIOpts\TextParser\TextSpecParser;
+use CLIOpts\Spec\ArgumentsSpec;
 
 class PargseArgsTest extends PHPUnit_Framework_TestCase {
 
@@ -105,8 +108,9 @@ class PargseArgsTest extends PHPUnit_Framework_TestCase {
   // parse args
 
   protected function verifyParsedArgs($text_spec, $fake_argv, $expected_result) {
-    $cli_opts = CLIOpts::createFromTextSpec($text_spec);
-    $this->assertEquals($expected_result, $cli_opts->parseArgv($fake_argv));
+    $arguments_spec = TextSpecParser::createArgumentsSpec($text_spec);
+    $parsed_args = ArgumentsParser::parseArgvWithSpec($fake_argv, $arguments_spec);
+    $this->assertEquals($expected_result, $parsed_args);
   }
 
 

@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of the CLIOpts package.
+ *
+ * (c) Devon Weller <dweller@devonweller.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace CLIOpts\TextParser;
 
 use CLIOpts\Spec\ArgumentsSpec;
@@ -84,9 +93,9 @@ class TextSpecParser {
     $regex = (
       '/^'.
       '(?:Usage:)?'.              // Usage:
-      '(?: ?(\{?[a-z_\.]+\}?))?'. // self name
+      '(?: ?(\{?[a-z_\.\/]+\}?))?'. // self name
       '(?: ?\[options\]?)?'.      // options
-      '((?: ?\[?<[^>]+>\]?)+)'.   // values
+      '((?: ?\[?<[^>]+>\]?)+)?'.   // values
       '$/i'
     );
     $matched = preg_match($regex, $line, $matches);

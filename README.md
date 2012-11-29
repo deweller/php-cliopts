@@ -16,7 +16,7 @@ Features
 Usage
 ------------
 
-### Code
+### Code ###
 Here is the php code:
 ```
 <?php
@@ -37,7 +37,7 @@ print_r((array)$values);
 ?>
 ```
 
-### Input
+### Input ###
 The following are handled in the same way by cliopts:
 
 `./script.php -v -i 101 -o /tmp/myfile.txt /tmp/infile.txt`
@@ -49,7 +49,7 @@ The following are handled in the same way by cliopts:
 `./script.php -v --id="101" -o /tmp/myfile.txt /tmp/infile.txt`
 
 
-### Output
+### Output ###
 All of the above will show this output:
 ```
 The values you supplied are:        
@@ -61,3 +61,7 @@ Array
     [v] =>        
 )                                   
 ```
+
+
+The text spec format
+------------

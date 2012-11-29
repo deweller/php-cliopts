@@ -78,12 +78,21 @@ class BuildHelpTest extends PHPUnit_Framework_TestCase {
       "Options:\n".
       "-i <id> (required)"
     );
+
+    $this->validateHelpString(
+      "Usage: {self} [options] <url>
+      -i <id> (required)",
+
+      "Usage:\n{$_SERVER['argv'][0]} [options] <url>\n\n".
+      "Options:\n".
+      "-i <id> (required)"
+    );
   }
 
 
   public function test_validateHelpStringWithValueNames() {
     $this->validateHelpString(
-      "Usage: {self} [options] <url>
+      "Usage: ./script.php [options] <url>
       -i <id> (required)",
 
       "Usage:\n./script.php [options] <url>\n\n".
@@ -91,7 +100,7 @@ class BuildHelpTest extends PHPUnit_Framework_TestCase {
       "-i <id> (required)"
     );
     $this->validateHelpString(
-      "Usage: {self} [options] <url> <url2>
+      "Usage: ./script.php [options] <url> <url2>
       -i <id> (required)",
 
       "Usage:\n./script.php [options] <url> <url2>\n\n".
@@ -102,12 +111,12 @@ class BuildHelpTest extends PHPUnit_Framework_TestCase {
 
   public function test_validateHelpStringWithNoOptions() {
     $this->validateHelpString(
-      "Usage: {self} <url>",
+      "Usage: ./script.php <url>",
 
       "Usage:\n./script.php <url>"
     );
     $this->validateHelpString(
-      "Usage: {self} <url> <url 2>",
+      "Usage: ./script.php <url> <url 2>",
 
       "Usage:\n./script.php <url> <url 2>"
     );
@@ -115,7 +124,7 @@ class BuildHelpTest extends PHPUnit_Framework_TestCase {
 
   public function test_validateOptionalValueNames() {
     $this->validateHelpString(
-      "Usage: {self} <url> [<url2>]",
+      "Usage: ./script.php <url> [<url2>]",
 
       "Usage:\n./script.php <url> [<url2>]"
     );
@@ -126,7 +135,17 @@ class BuildHelpTest extends PHPUnit_Framework_TestCase {
     $this->validateHelpString(
       "<url> [<url2>]",
 
-      "Usage:\n./script.php <url> [<url2>]"
+      "Usage:\n{$_SERVER['argv'][0]} <url> [<url2>]",
+
+      true
+    );
+
+    $this->validateHelpString(
+      "Usage: <url> [<url2>]",
+
+      "Usage:\n{$_SERVER['argv'][0]} <url> [<url2>]",
+
+      true
     );
   }
 
@@ -137,8 +156,14 @@ class BuildHelpTest extends PHPUnit_Framework_TestCase {
   // validateOptsValidationFails
   
 
-  protected function validateHelpString($text_spec, $expected_help_text=null) {
-    $cli_opts = CLIOpts::createFromTextSpec($text_spec);
+  protected function validateHelpString($text_spec, $expected_help_text=null, $literal_text_spec = false) {
+    $text_spec_for_create = $text_spec;
+    if (!$literal_text_spec AND substr($expected_help_text, 0, 6) != 'Usage:') {
+      $text_spec_for_create = "Usage: ./script.php\n".$text_spec;
+    }
+    $cli_opts = CLIOpts::createFromTextSpec($text_spec_for_create);
+
+
     if ($expected_help_text === null) {
       $expected_help_text = "Usage:\n./script.php [options]\n\nOptions:\n".trim($text_spec);
     } else {
@@ -148,7 +173,7 @@ class BuildHelpTest extends PHPUnit_Framework_TestCase {
       }
     }
 
-    $actual_help_text = $cli_opts->buildHelpText('./script.php');
+    $actual_help_text = $cli_opts->buildHelpText();
     $actual_help_text = preg_replace('!\x1b\[0;.*?m!', '', $actual_help_text);
     $actual_help_text = str_replace("\n  ","\n", $actual_help_text);
 

@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of the CLIOpts package.
+ *
+ * (c) Devon Weller <dweller@devonweller.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace CLIOpts\Spec;
 
 use \ArrayIterator;
@@ -16,7 +25,7 @@ class ArgumentsSpec extends ArrayIterator {
   public function __construct($argument_spec_data ) {
     $this->argument_spec_data = $argument_spec_data;
 
-    parent::__construct($this->argument_spec_data['options']);
+    parent::__construct($argument_spec_data['options']);
   }
 
   //////////////////////////////////////////////////////////////////////////////////////

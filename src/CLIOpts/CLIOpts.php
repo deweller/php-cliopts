@@ -1,23 +1,34 @@
 <?php
 
+/*
+ * This file is part of the CLIOpts package.
+ *
+ * (c) Devon Weller <dweller@devonweller.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace CLIOpts;
 
 use CLIOpts\TextParser\TextSpecParser;
-use CLIOpts\ArgumentsParser\ArgumentsParser;
-use CLIOpts\Help\ConsoleFormat;
-use CLIOpts\Help\HelpGenerator;
 use CLIOpts\Spec\ArgumentsSpec;
+use CLIOpts\ArgumentsParser\ArgumentsParser;
 use CLIOpts\Values\ArgumentValues;
+use CLIOpts\Help\HelpGenerator;
+use CLIOpts\Help\ConsoleFormat;
 
+/**
+* CLIOpts parser
+*
+* @license MIT
+*/
 class CLIOpts {
 
+  /**
+   * @var ArgumentsSpec The definition of expected arguments and options
+   */
   protected $arguments_spec = null;
-
-  function __construct(ArgumentsSpec $arguments_spec) {
-    $this->arguments_spec = $arguments_spec;
-    // $this->_addAcceptedArgument("h", "help", false, "show this help", $required = false);
-  }
-
 
 
 
@@ -26,99 +37,137 @@ class CLIOpts {
   //////////////////////////////////////////////////////////////////////////////////////
 
   /**
-  * createFromTextSpec
+  * create a new CLIOpts parser from a text specification
   * 
-  * @param mixed $arguments_spec_text Description.
+  * @param string $arguments_spec_text a text specification of expected arguments and options
   *
-  * @return mixed Value.
+  * @see TextSpecParser
+  * @return CLIOpts a CLIOpts parser.
   */
   public static function createFromTextSpec($arguments_spec_text) {
-    return self::createFromArgumentsSpec(TextSpecParser::createArgumentsSpec($arguments_spec_text));
+    return new self(TextSpecParser::createArgumentsSpec($arguments_spec_text));
   } 
 
-
-  public static function createFromArgumentsSpec(ArgumentsSpec $arguments_spec) {
-    return new CLIOpts($arguments_spec);
-  }
-
   /**
-  * returns an associative array of switch => data
-  * @return array associative array
-  */
+   * parse the argv data and build values
+   * 
+   * @param string $arguments_spec_text a text specification of expected arguments and options
+   * @param array  $argv                An optional array of argv values used for testing.  Leave blank to use the default $_SERVER['argv']
+   *
+   * @return ArgumentValues An array-like object that contains switches and data
+   */
   public static function getOpts($arguments_spec_text, $argv=null) {
-    return
-      self::createFromArgumentsSpec(TextSpecParser::createArgumentsSpec($arguments_spec_text))
-      ->getOptsValues($argv);
-  }
-
-
-
-//////////////////////////////////////////////////////////////////////////////////////
-// Public Methods
-//////////////////////////////////////////////////////////////////////////////////////
-  
-  public function getOptsValues($argv=null) {
-    $parsed_args = $this->parseArgv($this->resolveArgv($argv));
-    return new ArgumentValues($this->arguments_spec, $parsed_args);
-  }
-
-
-  public function parseArgv($argv=null) {
-    return ArgumentsParser::parseArgvWithSpec($this->resolveArgv($argv), $this->arguments_spec);
+    return self::createFromTextSpec($arguments_spec_text)->getOptsValues($argv);
   }
 
 
   /**
-  * builds help text
-  * @return string the help text
-  */
-  public function buildHelpText($self_name=null) {
-    return HelpGenerator::buildHelpText($this->arguments_spec, $self_name);
-  }
+   * parse the argv data and build values
+   *
+   * This is an all-in-one method to check validation and show help if a help flag is specified
+   * 
+   * @param string $arguments_spec_text a text specification of expected arguments and options
+   * @param bool   $do_validation       Include validation checking
+   * @param bool   $do_help             Include checking for --help flag
+   *
+   * @return ArgumentValues An array-like object that contains switches and data
+   */
+  public static function run($arguments_spec_text, $do_validation=true, $do_help=true) {
+    $cli_opts = self::createFromTextSpec($arguments_spec_text);
 
-  /**
-  * shows help text and exits
-  * @return void
-  */
-  public function showHelpTextAndExit() {
-    print $this->buildHelpText();
-    exit(0);
-  }
-  
-
-  public function run($with_validation=true, $with_help=true) {
     // get the values
-    $values = $this->getOptsValues();
+    $values = $cli_opts->getOptsValues();
 
 
     // check for the help switch before checking for valid values
-    if ($with_help AND isset($values['help'])) {
-      $this->showHelpTextAndExit();
+    if ($do_help AND isset($values['help'])) {
+      $cli_opts->showHelpTextAndExit();
     }
 
 
     // check validation.  Then generate help and exit if not valid.
-    if (!$values->isValid()) {
-      print ConsoleFormat::applyformatToText('red','bold','Errors:')."\n";
+    if ($do_validation AND !$values->isValid()) {
+      print ConsoleFormat::applyformatToText('red','bold','The following errors were found:')."\n";
       $values->showValidationErrors();
       print "\n";
-      $this->showHelpTextAndExit();
+      $cli_opts->showHelpTextAndExit();
     }
+
 
     return $values;
   }
+
+
+  //////////////////////////////////////////////////////////////////////////////////////
+  // Public Methods
+  //////////////////////////////////////////////////////////////////////////////////////
+  
+
+  /**
+   * parse the argv data and build values
+   * 
+   * @param array  $argv  An optional array of argv values used for testing.  Leave blank to use the default $_SERVER['argv']
+   *
+   * @return ArgumentValues An array-like object that contains switches and data
+   */
+  public function getOptsValues($argv=null) {
+    $parsed_args = ArgumentsParser::parseArgvWithSpec($this->resolveArgv($argv), $this->arguments_spec);
+    return new ArgumentValues($this->arguments_spec, $parsed_args);
+  }
+
+
+  /**
+   * builds a nicely formatted help text
+   * 
+   * @param mixed $self_name An optional name for self.  Defaults to $_SERVER['argv'][0].
+   *
+   * @return string The help text
+   */
+  public function buildHelpText() {
+    return HelpGenerator::buildHelpText($this->arguments_spec);
+  }
+
+
+  /**
+   * prints help text and exits the script
+   * 
+   * @param int $exit_code exit code
+   *
+   * @return void
+   */
+  public function showHelpTextAndExit($exit_code=0) {
+    print $this->buildHelpText();
+    exit($exit_code);
+  }
+  
+
+  /**
+   * Create a new CLIOpts parser with an arguments spec object
+   *
+   * The easiest way to create a CLIOpts parser is with CLIOpts::createFromTextSpec
+   * 
+   * @param ArgumentsSpec The definition of which arguments and options are expected.
+   */
+  function __construct(ArgumentsSpec $arguments_spec) {
+    $this->arguments_spec = $arguments_spec;
+  }
+
 
 
 //////////////////////////////////////////////////////////////////////////////////////
 // Private/Protected Methods
 //////////////////////////////////////////////////////////////////////////////////////
 
+  /**
+   * returns $_SERVER['argv'] if argv is null
+   * 
+   * @param mixed $argv array of argument values or null
+   *
+   * @return array argv array
+   */
   protected function resolveArgv($argv=null) {
     return ($argv === null ? $_SERVER['argv'] : $argv);
   }
-
-
-
 
 
 }
