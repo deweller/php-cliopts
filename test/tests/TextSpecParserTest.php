@@ -1,6 +1,6 @@
 <?php
 
-use CLIOpts\Parser\TextSpecParser;
+use CLIOpts\TextParser\TextSpecParser;
 
 class TextSpecParserTest extends PHPUnit_Framework_TestCase {
 

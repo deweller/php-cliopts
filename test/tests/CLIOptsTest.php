@@ -5,8 +5,6 @@ use CLIOpts\CLIOpts;
 class CLIOptsTest extends PHPUnit_Framework_TestCase {
 
 
-
-
   ////////////////////////////////////////////////////////////////////////
   ////////////////////////////////////////////////////////////////////////
   // parse args
@@ -143,6 +141,60 @@ class CLIOptsTest extends PHPUnit_Framework_TestCase {
     $this->assertEquals('bar1', $values['value1']);
   }
 
+
+  public function test_getOpts10() {
+    $values = $this->verifyOpts(
+      '-i, --identifier <id> specify an id (required)',
+
+      array('script.php', '--identifier=100'),
+
+      array('identifier' => 100,)
+    );
+    $this->assertEquals('100', $values['i']);
+    $this->assertEquals('100', $values['identifier']);
+  }
+
+  public function test_getOpts11() {
+    $values = $this->verifyOpts(
+      '-i, --identifier <id> specify an id (required)'."\n".
+      '-f <value> specify a value'."\n".
+      '-x specify an x',
+
+      array('script.php', '--identifier=100', '-f=9', '-x'),
+
+      array('identifier' => 100, 'f' => 9, 'x' => false)
+    );
+    $this->assertEquals('100', $values['i']);
+    $this->assertEquals('100', $values['identifier']);
+    $this->assertEquals('9', $values['f']);
+    $this->assertEquals(false, $values['x']);
+  }
+
+  public function test_getOpts12() {
+    $values = $this->verifyOpts(
+      '-i, --identifier <id> specify an id (required)'."\n".
+      '-x specify an x'."\n".
+      '-y specify an y'."\n".
+      '-z specify an z'."\n",
+
+      array('script.php', '-xyzi', '100'),
+
+      array('identifier' => 100, 'x' => false, 'y' => false, 'z' => false)
+    );
+  }
+
+  public function test_getOpts13() {
+    $values = $this->verifyOpts(
+      '-i, --identifier <id> specify an id'."\n".
+      '-x specify an x'."\n".
+      '-y specify an y'."\n".
+      '-z specify an z'."\n",
+
+      array('script.php', '-xyz'),
+
+      array('x' => false, 'y' => false, 'z' => false)
+    );
+  }
 
   ////////////////////////////////////////////////////////////////////////
   ////////////////////////////////////////////////////////////////////////

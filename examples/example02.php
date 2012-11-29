@@ -3,6 +3,10 @@
 
 # to run these examples - make sure to do this first:
 # composer install -d ../
+if (!file_exists(__DIR__.'/../vendor/autoload.php')) {
+  echo "to run this sample, do this first:\ncomposer install -d ../\n";
+  exit(1);
+}
 
 
 // autoload - you'll need composer (see above)

@@ -1,6 +1,6 @@
 <?php
 
-namespace CLIOpts\Parser;
+namespace CLIOpts\TextParser;
 
 use CLIOpts\Spec\ArgumentsSpec;
 
