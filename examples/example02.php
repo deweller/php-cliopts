@@ -35,10 +35,15 @@ if (isset($values['help'])) {
 
 // check validation.  Then generate help and exit if not valid.
 if (!$values->isValid()) {
-  print CLIOpts\Help\ConsoleFormat::applyformatToText('red','bold','Errors:')."\n";
-  $values->showValidationErrors();
-  print "\n";
+  print 
+    CLIOpts\Help\ConsoleFormat::applyformatToText(
+      'bold','white','red_bg',
+      'The following errors were found:'
+    )."\n".
+    $values->buildValidationErrorsAsText()."\n\n";
+
   $cliopts->showHelpTextAndExit();
+  // *** script exited *** //
 }
 
 

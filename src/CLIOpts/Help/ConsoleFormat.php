@@ -19,18 +19,28 @@ namespace CLIOpts\Help;
  */
 class ConsoleFormat {
 
-  const CONSOLE_PLAIN = 0;
-  const CONSOLE_BOLD = 1;
-  const CONSOLE_UNDERLINE = 4;
+  const CONSOLE_PLAIN      = 0;
+  const CONSOLE_BOLD       = 1;
+  const CONSOLE_UNDERLINE  = 4;
 
-  const CONSOLE_BLACK = 30;
-  const CONSOLE_RED = 31;
-  const CONSOLE_GREEN = 32;
-  const CONSOLE_YELLOW = 33;
-  const CONSOLE_BLUE = 34;
-  const CONSOLE_MAGENTA = 35;
-  const CONSOLE_CYAN = 36;
-  const CONSOLE_WHITE = 37;
+  const CONSOLE_BLACK      = 30;
+  const CONSOLE_RED        = 31;
+  const CONSOLE_GREEN      = 32;
+  const CONSOLE_YELLOW     = 33;
+  const CONSOLE_BLUE       = 34;
+  const CONSOLE_MAGENTA    = 35;
+  const CONSOLE_CYAN       = 36;
+  const CONSOLE_WHITE      = 37;
+
+  const CONSOLE_BLACK_BG   = 40;
+  const CONSOLE_RED_BG     = 41;
+  const CONSOLE_GREEN_BG   = 42;
+  const CONSOLE_YELLOW_BG  = 43;
+  const CONSOLE_BLUE_BG    = 44;
+  const CONSOLE_MAGENTA_BG = 45;
+  const CONSOLE_CYAN_BG    = 46;
+  const CONSOLE_WHITE_BG   = 47;
+
 
   //////////////////////////////////////////////////////////////////////////////////////
   // Class Methods

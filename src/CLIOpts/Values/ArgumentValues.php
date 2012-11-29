@@ -70,10 +70,15 @@ class ArgumentValues extends ArrayIterator {
     return $this->validator->getErrors();
   }
 
-  public function showValidationErrors() {
-    print ConsoleFormat::mode('red');
-    print implode("\n", $this->getValidationErrors())."\n";
-    print ConsoleFormat::mode('plain');
+  public function buildValidationErrorsAsText($indent=2) {
+    $errors = $this->getValidationErrors();
+    if (!$errors) { return ''; }
+
+    $indent_text = str_repeat(' ', $indent);
+    return ConsoleFormat::applyformatToText(
+      'red','bold',
+      $indent_text.implode("\n".$indent_text, $errors)
+    );
   }
 
   public function offsetGet($key) {

@@ -37,6 +37,22 @@ class CLIOpts {
   //////////////////////////////////////////////////////////////////////////////////////
 
   /**
+   * parse the argv data and build values
+   *
+   * This is an all-in-one method to check validation and show help if a help flag is specified
+   *
+   * @param string $arguments_spec_text a text specification of expected arguments and options
+   * @param bool   $do_validation       Include validation checking
+   * @param bool   $do_help             Include checking for --help flag
+   *
+   * @return ArgumentValues An array-like object that contains switches and data.  This method will exit on validation failure or after showing help.
+   */
+  public static function run($arguments_spec_text, $do_validation=true, $do_help=true) {
+    $cli_opts = self::createFromTextSpec($arguments_spec_text);
+    return $cli_opts->runWithValidationAndHelp($do_validation, $do_help);
+  }
+
+  /**
   * create a new CLIOpts parser from a text specification
   * 
   * @param string $arguments_spec_text a text specification of expected arguments and options
@@ -61,47 +77,49 @@ class CLIOpts {
   }
 
 
+  //////////////////////////////////////////////////////////////////////////////////////
+  // Public Methods
+  //////////////////////////////////////////////////////////////////////////////////////
+  
   /**
    * parse the argv data and build values
    *
-   * This is an all-in-one method to check validation and show help if a help flag is specified
+   * This is an all-in-one method to check validation and show help if a help flag is specified.
    * 
-   * @param string $arguments_spec_text a text specification of expected arguments and options
    * @param bool   $do_validation       Include validation checking
    * @param bool   $do_help             Include checking for --help flag
    *
-   * @return ArgumentValues An array-like object that contains switches and data
+   * @return ArgumentValues An array-like object that contains switches and data.  This method will exit on validation failure or after showing help.
    */
-  public static function run($arguments_spec_text, $do_validation=true, $do_help=true) {
-    $cli_opts = self::createFromTextSpec($arguments_spec_text);
-
+  public function runWithValidationAndHelp($do_validation=true, $do_help=true) {
     // get the values
-    $values = $cli_opts->getOptsValues();
+    $values = $this->getOptsValues();
 
 
     // check for the help switch before checking for valid values
     if ($do_help AND isset($values['help'])) {
-      $cli_opts->showHelpTextAndExit();
+      $this->showHelpTextAndExit();
+      // *** script exited *** //
     }
 
 
     // check validation.  Then generate help and exit if not valid.
     if ($do_validation AND !$values->isValid()) {
-      print ConsoleFormat::applyformatToText('red','bold','The following errors were found:')."\n";
-      $values->showValidationErrors();
-      print "\n";
-      $cli_opts->showHelpTextAndExit();
+      print 
+        ConsoleFormat::applyformatToText(
+          'bold','white','red_bg',
+          'The following errors were found:'
+        )."\n".
+        $values->buildValidationErrorsAsText()."\n\n";
+
+      $this->showHelpTextAndExit();
+      // *** script exited *** //
     }
 
 
     return $values;
   }
 
-
-  //////////////////////////////////////////////////////////////////////////////////////
-  // Public Methods
-  //////////////////////////////////////////////////////////////////////////////////////
-  
 
   /**
    * parse the argv data and build values
