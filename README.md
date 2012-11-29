@@ -22,7 +22,7 @@ Here is the php code:
 <?php
 
 // specify the spec as human readable text
-$opts = CLIOpts\CLIOpts::createFromTextSpec("
+$values = CLIOpts\CLIOpts::createFromTextSpec("
 {self} <in_filename>
 -i, --id <id> specify an id (required)
 -o, --out <out_filename> output filename
@@ -32,7 +32,7 @@ $opts = CLIOpts\CLIOpts::createFromTextSpec("
 
 // show the values
 echo "The values you supplied are:\n";
-print_r((array)$opts);
+print_r((array)$values);
 
 ?>
 ```
@@ -41,8 +41,11 @@ print_r((array)$opts);
 The following are handled in the same way by cliopts:
 
 `./script.php -v -i 101 -o /tmp/myfile.txt /tmp/infile.txt`
+
 `./script.php -vi 101 -o /tmp/myfile.txt /tmp/infile.txt`
+
 `./script.php -v --id 101 -o /tmp/myfile.txt /tmp/infile.txt`
+
 `./script.php -v --id="101" -o /tmp/myfile.txt /tmp/infile.txt`
 
 
