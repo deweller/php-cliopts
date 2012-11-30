@@ -108,7 +108,8 @@ Here is how the first option line is interpreted:
 |   |    |
 |   |    + This specifies that the option requires a value.  Unlike arguments, this is not used for the value name.
 |   |
-|   + This is an optional long option name.  If specified, this is used for the value name when arguments are parsed.
+|   + This is an long option name.  It is not required.  If specified, this is used for the value name when arguments are parsed.
 |
-+ This is the short option name.  Values can be also be accessed using this shortcut.
++ This is the short option name.  It is not required.  Values can be accessed using this shortcut.
 ```
+
