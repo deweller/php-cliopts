@@ -7,17 +7,19 @@ A no-nonsense command-line options parser and help generator for PHP CLI apps.
 Features
 ------------
 
-- Parses $argv data into an associative array
-- Simple, human readable configuration
-- Error validation for missing or malformed arguments
+- Simple one-line usage with a human readable configuration format
+- Parses $argv data into an associative array similar to getopt()
+- Adds error validation for missing or malformed arguments or options
 - Nicely formatted help generation
+- Supports options (e.g. -i 100) and named arguments (./script.php /tmp/myfile.txt)
 
 
 Usage
 ------------
 
 ### Code ###
-Here is the php code:
+
+In its simplest form, the parser can be run from one line of php code:
 ```
 <?php
 
@@ -37,19 +39,19 @@ print_r((array)$values);
 ?>
 ```
 
-### Input ###
-The following are handled in the same way by cliopts:
 
-`./script.php -v -i 101 -o /tmp/myfile.txt /tmp/infile.txt`
+### CLI Input ###
 
-`./script.php -vi 101 -o /tmp/myfile.txt /tmp/infile.txt`
+The interpretation of flags are somewhat flexible.  The following lines are all handled in the same way by cliopts:
 
-`./script.php -v --id 101 -o /tmp/myfile.txt /tmp/infile.txt`
+1. `./script.php -v -i 101 -o /tmp/myfile.txt /tmp/infile.txt`
 
-`./script.php -v --id="101" -o /tmp/myfile.txt /tmp/infile.txt`
+2. `./script.php -vi 101 -o /tmp/myfile.txt /tmp/infile.txt`
 
+3. `./script.php -v --id 101 -o /tmp/myfile.txt /tmp/infile.txt`
 
-### Output ###
+4. `./script.php -v --id="101" -o /tmp/myfile.txt /tmp/infile.txt`
+
 All of the above will show this output:
 ```
 The values you supplied are:        
@@ -63,7 +65,7 @@ Array
 ```
 
 
-The text spec format
+The Human Readable Text Specification Format
 ------------
 
 Take this example specification:
