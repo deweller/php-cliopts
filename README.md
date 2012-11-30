@@ -66,6 +66,49 @@ Array
 The text spec format
 ------------
 
-TBD
+Take this example specification:
+
+```
+Usage: process_files.php [options] <in_file1> [<in_file2>]
+-i, --id <id> specify an id (required)
+-v be verbose
+```
+
+### The Usage Line ###
+
+The spec begins with an optional usage line.  Here is a breakdown of how the usage line is interpreted:
+
+```
+Usage: process_files.php [options] <in_file1> [<in_file2>]
+|      |                 |         |          |
+|      |                 |         |          + Optional second argument named in_file2.
+|      |                 |         |
+|      |                 |         + Required first argument named in_file1
+|      |                 |          
+|      |                 + An options placeholder.  This may be ommitted.  It must come before any arguments.
+|      |
+|      + A script name.  This may be ommitted to use the default $_SERVER['argv'][0]
+|
++ The usage keyword.  This may be ommitted.
+```
+
+In this example, 1 argument is expected and it will be assigned the name "in_file1".  An optional second argument will be named "in_file2" if it is provided.  A 3rd argument is not specified and will not be interpreted.
 
 
+### The Option Lines ###
+
+Here is how the first option line is interpreted:
+
+```
+-i, --id <id> specify an id (required)
+|   |    |    |             |
+|   |    |    |             + This makes the option required when validating.
+|   |    |    |
+|   |    |    + Help text.  This can be any text.
+|   |    |
+|   |    + This specifies that the option requires a value.  Unlike arguments, this is not used for the value name.
+|   |
+|   + This is an optional long option name.  If specified, this is used for the value name when arguments are parsed.
+|
++ This is the short option name.  Values can be also be accessed using this shortcut.
+```

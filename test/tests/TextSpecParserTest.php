@@ -177,12 +177,29 @@ EOT;
   // function
 
   protected function checkSpecTextLine($text, $expected_array) {
-    $this->assertEquals($expected_array, TextSpecParser::createParameterSpecFromLine($text));
+    $this->assertEquals($expected_array, TestTextSpecParser::createParameterSpecFromLine($text));
   }  
 
   protected function checkUsageLine($usage_line_text, $expected_data) {
-    $this->assertEquals($expected_data, TextSpecParser::parseUsageLine($usage_line_text));
+    $this->assertEquals($expected_data, TestTextSpecParser::parseUsageLine($usage_line_text));
   } 
   
+
+}
+
+
+////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+// check protected methods
+
+class TestTextSpecParser extends TextSpecParser {
+
+  public static function createParameterSpecFromLine($line) {
+    return parent::createParameterSpecFromLine($line);
+  }
+
+  public static function parseUsageLine($usage_line_text) {
+    return parent::parseUsageLine($usage_line_text);
+  }
 
 }

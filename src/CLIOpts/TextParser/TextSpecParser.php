@@ -17,7 +17,24 @@ use \Exception;
 
 /* 
 * TextSpecParser
-* __description__
+* 
+* Parses a human readable options specification into an ArgumentsSpec object
+* The spec begins whith an optional Usage Line.  Here is an example of a usage line:
+* Usage: process_files.php [options] <in_file1> [<in_file2>]
+* |      |                 |         |          |
+* |      |                 |         |          + Optional second argument named in_file2.
+* |      |                 |         |
+* |      |                 |         + Required first argument named in_file1
+* |      |                 |          
+* |      |                 + An options placeholder.  This may be ommitted.  It must come before any arguments.
+* |      |
+* |      + A script name.  This may be ommitted to use the default $_SERVER['argv'][0]
+* |
+* + The usage keyword.  This may be ommitted.
+*
+* In this example, 1 argument is expected and it will be assigned the name "in_file1".  An optional second argument 
+*
+* @license MIT
 */
 class TextSpecParser {
 
@@ -27,14 +44,21 @@ class TextSpecParser {
   // Class Methods
   //////////////////////////////////////////////////////////////////////////////////////
 
-  public static function createArgumentsSpec($text) {
+  /**
+   * Parses a human readable options specification
+   * 
+   * @param mixed $text_specification A human reable representation of options and arguments
+   *
+   * @return ArgumentsSpec An argument spec based on the text specification
+   */
+  public static function createArgumentsSpec($text_specification) {
     $argument_spec_data = array(
       'usage'   => self::defaultUsageData(),
       'options' => array(),
     );
 
     $is_first_line = true;
-    $lines = explode("\n", trim($text));
+    $lines = explode("\n", trim($text_specification));
     foreach($lines as $line) {
       $line = trim($line);
       if (!strlen($line)) { continue; }
@@ -59,7 +83,21 @@ class TextSpecParser {
   }
 
 
-  public static function createParameterSpecFromLine($line) {
+
+  //////////////////////////////////////////////////////////////////////////////////////
+  // Private/Protected Methods
+  //////////////////////////////////////////////////////////////////////////////////////
+
+
+  protected static function defaultUsageData() {
+    return  array(
+      'use_argv_self' => true,
+      'self'          => null,
+      'value_specs'   => array(),
+    );
+  }
+
+  protected static function createParameterSpecFromLine($line) {
     // --identifier <id> specify an id (required)
 
     $regex = (
@@ -89,7 +127,7 @@ class TextSpecParser {
     return $out;
   }
 
-  public static function parseUsageLine($line) {
+  protected static function parseUsageLine($line) {
     $regex = (
       '/^'.
       '(?:Usage:)?'.              // Usage:
@@ -134,26 +172,5 @@ class TextSpecParser {
     );
     return $out;
   }
-
-  //////////////////////////////////////////////////////////////////////////////////////
-  // Public Methods
-  //////////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
-  //////////////////////////////////////////////////////////////////////////////////////
-  // Private/Protected Methods
-  //////////////////////////////////////////////////////////////////////////////////////
-
-  protected static function defaultUsageData() {
-    return  array(
-      'use_argv_self' => true,
-      'self'          => null,
-      'value_specs'   => array(),
-    );
-  }
-
 }
 
