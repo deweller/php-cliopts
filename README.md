@@ -65,7 +65,7 @@ Array
 ```
 
 
-The Human Readable Text Specification Format
+The Human Readable Text Specification
 ------------
 
 Take this example specification:
