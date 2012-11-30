@@ -19,7 +19,7 @@ Usage
 
 ### Code ###
 
-In its simplest form, the parser can be run from one line of php code:
+In its simplest form, the parser can be used with one line of php code:
 ```
 <?php
 
