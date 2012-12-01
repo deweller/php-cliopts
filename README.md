@@ -20,8 +20,7 @@ Usage
 ### Code ###
 
 In its simplest form, the parser can be used with one line of php code:
-```
-<?php
+```php
 
 // specify the spec as human readable text
 $values = CLIOpts\CLIOpts::createFromTextSpec("
@@ -36,7 +35,6 @@ $values = CLIOpts\CLIOpts::createFromTextSpec("
 echo "The values you supplied are:\n";
 print_r((array)$values);
 
-?>
 ```
 
 
@@ -60,7 +58,7 @@ Array
     [in_filename] => /tmp/infile.txt
     [id] => 101
     [out] => /tmp/myfile.txt
-    [v] =>        
+    [v] =>
 )                                   
 ```
 
@@ -68,17 +66,19 @@ Array
 The Human Readable Text Specification
 ------------
 
-Take this example specification:
+Let's look at the specification in the following bit of code:
 
-```
-Usage: process_files.php [options] <in_file1> [<in_file2>]
--i, --id <id> specify an id (required)
--v be verbose
+```php
+$values = CLIOpts\CLIOpts::createFromTextSpec("
+  Usage: process_files.php [options] <in_file1> [<in_file2>]
+  -i, --id <id> specify an id (required)
+  -v be verbose
+")
 ```
 
 ### The Usage Line ###
 
-The spec begins with an optional usage line.  Here is a breakdown of how the usage line is interpreted:
+The spec begins with a usage line.  This line is optional.  But if it is provided, here is a breakdown of how the usage line is interpreted:
 
 ```
 Usage: process_files.php [options] <in_file1> [<in_file2>]
@@ -94,7 +94,7 @@ Usage: process_files.php [options] <in_file1> [<in_file2>]
 + The usage keyword.  This may be ommitted.
 ```
 
-In this example, 1 argument is expected and it will be assigned the name "in_file1".  An optional second argument will be named "in_file2" if it is provided.  A 3rd argument is not specified and will not be interpreted.
+In this example, 1 argument is expected and the value provided will be assigned to the key "in_file1" in the values object.  An optional second argument will be assed to the key "in_file2" if it is provided.  And that's all.  If a 3rd argument is provided it will not be assigned to a value and validation will fail.
 
 
 ### The Option Lines ###
@@ -110,7 +110,7 @@ Here is how the first option line is interpreted:
 |   |    |
 |   |    + This specifies that the option requires a value.  Unlike arguments, this is not used for the value name.
 |   |
-|   + This is an long option name.  It is not required.  If specified, this is used for the value name when arguments are parsed.
+|   + This is a long option name.  It is not required.  If specified, this is used for the value name when arguments are parsed.
 |
 + This is the short option name.  It is not required.  Values can be accessed using this shortcut.
 ```
