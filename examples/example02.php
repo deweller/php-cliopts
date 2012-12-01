@@ -34,13 +34,19 @@ if (isset($values['help'])) {
 
 
 // check validation.  Then generate help and exit if not valid.
-if (!$values->isValid()) {
+$validator = $values->getValidator();
+if (!$validator->isValid()) {
+  $indent_text = '  ';
+
   print 
     CLIOpts\Help\ConsoleFormat::applyformatToText(
       'bold','white','red_bg',
       'The following errors were found:'
     )."\n".
-    $values->buildValidationErrorsAsText()."\n\n";
+    CLIOpts\Help\ConsoleFormat::applyformatToText(
+      'red','bold',
+      $indent_text.implode("\n".$indent_text, $validator->getErrors())
+    )."\n\n";
 
   $cliopts->showHelpTextAndExit();
   // *** script exited *** //
