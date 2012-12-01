@@ -151,9 +151,10 @@ class ValidationTest extends PHPUnit_Framework_TestCase {
 
   protected function validateOptsValidationFails($text_spec, $fake_argv, $expected_error_result) {
     $values = CLIOpts::getOpts($text_spec, $fake_argv);
-    $this->assertFalse($values->isValid(), 'Validation was not false');
+    $validator = $values->getValidator();
+    $this->assertFalse($validator->isValid(), 'Validation was not false');
 
-    $errors = $values->getValidationErrors();
+    $errors = $validator->getErrors();
     $this->assertGreaterThan(0, count($errors), "No expected errors found.");
     $this->assertRegExp('/'.$expected_error_result.'/', implode("\n", $errors));
 
@@ -162,7 +163,8 @@ class ValidationTest extends PHPUnit_Framework_TestCase {
 
   protected function validateOptsValidationSucceeds($text_spec, $fake_argv) {
     $values = CLIOpts::getOpts($text_spec, $fake_argv);
-    $this->assertTrue($values->isValid(), 'Validation was false');
+    $validator = $values->getValidator();
+    $this->assertTrue($validator->isValid(), 'Validation was false');
     return $values;
   }
 

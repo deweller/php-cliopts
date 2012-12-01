@@ -13,9 +13,9 @@ namespace CLIOpts\Help;
 
 
 /**
- * Console Text Formatting Utilities Library
+ * Console Text Formatting Library
  * 
- * Utilities for dealing with console-based PHP scripts
+ * Utilities for formatting output to an ANSI console
  */
 class ConsoleFormat {
 
@@ -47,41 +47,41 @@ class ConsoleFormat {
   //////////////////////////////////////////////////////////////////////////////////////
 
   /**
-   * Makes the given text bold in the console
+   * Applies one or more console formatting codes to text
    * 
-   * @param string $text text to be bold.
-   *
-   * @access public
-   * @static
-   *
-   * @return string Bolded text.
+   * @param string $mode A mode like bold or black.  This can be repeated numerous times.
+   * @param string $text the text to be formatted
+   * 
+   * @return string a formatted version of $text
    */
-  public static function bold($text) {
-    return self::mode('bold').$text.self::mode('plain');
-  }
-
   public static function applyformatToText() {
     $args = func_get_args();
     $count = func_num_args();
 
     $text = $args[$count - 1];
+    if ($count == 1) { return $text; }
+
     $mode_texts = array_slice($args, 0, $count - 1);
 
-    return self::applyModeTexts($mode_texts).$text.self::mode('plain');
+    return self::buildEscapeCodes($mode_texts).$text.self::buildEscapeCodes('plain');
   }
+
+
+
+  //////////////////////////////////////////////////////////////////////////////////////
+  // Private/Protected Methods
+  //////////////////////////////////////////////////////////////////////////////////////
 
   /**
-  * builds the console text to change the text mode, like bold or underline
-  * 
-  * @param string $mode A mode such as "bold", "underline" or "plain"
-  * @return string conole text
-  */
-  public static function mode() {
-    $mode_texts = func_get_args();
-    return self::applyModeTexts($mode_texts);
-  }
+   * builds ANSI escape codes
+   * 
+   * @param mixed $mode_texts An array of mode texts like bold or white.  Can also be a single string.
+   *
+   * @return string ANSI escape code to activate the modes
+   */
+  protected static function buildEscapeCodes($mode_texts) {
+    if (!is_array($mode_texts)) { $mode_texts = array($mode_texts); }
 
-  protected static function applyModeTexts($mode_texts) {
     $code_text = '';
     foreach ($mode_texts as $mode) {
       $constant_name = 'self::CONSOLE_'.strtoupper($mode);
@@ -89,7 +89,9 @@ class ConsoleFormat {
         $code_text .= (strlen($code_text) ? ';': '').constant($constant_name);
       }
     }
+
     return chr(27)."[0;".$code_text."m";
   }
+
 
 }

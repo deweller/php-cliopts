@@ -104,16 +104,24 @@ class CLIOpts {
 
 
     // check validation.  Then generate help and exit if not valid.
-    if ($do_validation AND !$values->isValid()) {
-      print 
-        ConsoleFormat::applyformatToText(
-          'bold','white','red_bg',
-          'The following errors were found:'
-        )."\n".
-        $values->buildValidationErrorsAsText()."\n\n";
+    if ($do_validation) {
+      $validator = $values->getValidator();
+      if (!$validator->isValid()) {
+        $indent_text = '  ';
 
-      $this->showHelpTextAndExit();
-      // *** script exited *** //
+        print 
+          ConsoleFormat::applyformatToText(
+            'bold','white','red_bg',
+            'The following errors were found:'
+          )."\n".
+          ConsoleFormat::applyformatToText(
+            'red','bold',
+            $indent_text.implode("\n".$indent_text, $validator->getErrors())
+          )."\n\n";
+
+        $this->showHelpTextAndExit();
+        // *** script exited *** //
+      }
     }
 
 

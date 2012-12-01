@@ -11,10 +11,13 @@
 
 namespace CLIOpts\ArgumentsParser;
 
+use CLIOpts\Spec\ArgumentsSpec;
+
 
 /* 
 * ArgumentsParser
-* __description__
+* 
+* Parses command line options from an argv array
 */
 class ArgumentsParser {
 
@@ -27,18 +30,20 @@ class ArgumentsParser {
   //////////////////////////////////////////////////////////////////////////////////////
 
   /**
-  * parses command unix-style command line options from an array
-  *
-  * returns an array of three elements:
-  *   "self" - The args[0] entry
-  *   "switches" - an associative array of switches to data.  Switches have dashes removed  
-  *   "data" - Any data not preceeded by a switch as a numbered array
-  *   "numbered_data" -
-  *
-  * @param array $argv A numbered array of command switches.  Uses $_SERVER['argv'] by default
-  * @return array A hash of command switches to values. 
-  */
-  public static function parseArgvWithSpec($argv, $arguments_spec) {
+   * Parses command line options from an argv array
+   *
+   * returns an array of three elements:
+   *   "self" - The args[0] entry
+   *   "options" - an associative array of options to data.  options have dashes removed  
+   *   "data" - Argument data not belonging to a switch as a numbered array
+   *   "numbered_data" - Argument data not belonging to a switch as an associative array by argument name
+   * 
+   * @param array $argv A numbered array of argv data like $_SERVER['argv']
+   * @param ArgumentsSpec $arguments_spec The arguments specification
+   *
+   * @return array An array or parsed argument data
+   */
+  public static function parseArgvWithSpec($argv, ArgumentsSpec $arguments_spec) {
     $data_offset_count = 0;
     $usage = $arguments_spec->getUsage();
 
@@ -74,21 +79,22 @@ class ArgumentsParser {
   }
 
 
-
-
-  //////////////////////////////////////////////////////////////////////////////////////
-  // Public Methods
-  //////////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
   //////////////////////////////////////////////////////////////////////////////////////
   // Private/Protected Methods
   //////////////////////////////////////////////////////////////////////////////////////
 
-  protected static function tokenizeArgvData($argv_in, $arguments_spec) {
+  /**
+   * Parses command line options from an argv array into tokenized data
+   *
+   * This method processes options like -abc foo as if they were -a -b -c foo
+   * This method also handles --foo=bar the same as -foo bar
+   * 
+   * @param mixed $argv_in        A numbered array of argv data like $_SERVER['argv']
+   * @param ArgumentsSpec $arguments_spec The arguments specification
+   *
+   * @return array tokenized data
+   */
+  protected static function tokenizeArgvData($argv_in, ArgumentsSpec $arguments_spec) {
     $data_offset_count = 0;
     $usage = $arguments_spec->getUsage();
 
@@ -139,7 +145,7 @@ class ArgumentsParser {
         if (preg_match('/^(.+?)=(.+)$/', $key, $matches)) {
           $key = $matches[1];
           $data = $matches[2];
-        } else if ($arguments_spec->expectsValue($key)) {
+        } else if ($arguments_spec->optionExpectsValue($key)) {
           // we are expecting a value, so read the next token as data
           $next_token = isset($argv_in[$token_offset + 1]) ? $argv_in[$token_offset + 1] : null;
 
@@ -171,7 +177,7 @@ class ArgumentsParser {
         $argv_tokens_out[] = array(
           'type'   => self::TOKEN_DATA,
           'offset' => $data_offset_count,
-          'key'    => isset($usage['value_specs'][$data_offset_count]) ? $usage['value_specs'][$data_offset_count]['name'] : null,
+          'key'    => isset($usage['named_args_spec'][$data_offset_count]) ? $usage['named_args_spec'][$data_offset_count]['name'] : null,
           'value'  => $data,
         );
 

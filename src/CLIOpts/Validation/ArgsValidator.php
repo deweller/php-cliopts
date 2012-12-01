@@ -16,20 +16,30 @@ use CLIOpts\Spec\ArgumentsSpec;
 
 /* 
 * ArgsValidator
-* __description__
+*
+* Validates missing arguments
 */
 class ArgsValidator {
 
+  /**
+   * @var ArgumentsSpec The arguments specification
+   */
   protected $arguments_spec;
+
+  /**
+   * @var array data parsed by the ArgumentsParser
+   */
   protected $parsed_args;
+
+  /**
+   * @var bool if the arguments are valid
+   */
   protected $is_valid;
 
+  /**
+   * @var array an array of error text strings
+   */
   protected $errors = array();
-
-  function __construct(ArgumentsSpec $arguments_spec, $parsed_args) {
-    $this->arguments_spec = $arguments_spec;
-    $this->parsed_args = $parsed_args;
-  }
 
 
   //////////////////////////////////////////////////////////////////////////////////////
@@ -43,7 +53,24 @@ class ArgsValidator {
   // Public Methods
   //////////////////////////////////////////////////////////////////////////////////////
 
+  /**
+   * Constructor
+   * 
+   * @param ArgumentsSpec $arguments_spec The arguments specification
+   * @param array         $parsed_args    data parsed by the ArgumentsParser
+   */
+  function __construct(ArgumentsSpec $arguments_spec, $parsed_args) {
+    $this->arguments_spec = $arguments_spec;
+    $this->parsed_args = $parsed_args;
+  }
 
+
+
+  /**
+   * validates the arguments
+   * 
+   * @return bool true if the arguments are valid according to the spec
+   */
   public function isValid() {
     if (!isset($this->is_valid)) {
       $this->is_valid = $this->validate($this->arguments_spec, $this->parsed_args);
@@ -51,6 +78,11 @@ class ArgsValidator {
     return $this->is_valid;
   }
 
+  /**
+   * returns the errors if not valid
+   * 
+   * @return array an array of error text strings or an empty array if valid
+   */
   public function getErrors() {
     if (!$this->isValid()) {
       return $this->errors;
@@ -64,38 +96,46 @@ class ArgsValidator {
   // Private/Protected Methods
   //////////////////////////////////////////////////////////////////////////////////////
 
-  protected function validate($arguments_spec, $parsed_args) {
+  /**
+   * validates if the arguments are valid according to the spec
+   * 
+   * @param ArgumentsSpec $arguments_spec The arguments specification
+   * @param array         $parsed_args    data parsed by the ArgumentsParser
+   *
+   * @return bool true if the arguments are valid according to the spec
+   */
+  protected function validate(ArgumentsSpec $arguments_spec, $parsed_args) {
     $is_valid = true;
 
     // check for missing required items or argument values
-    foreach($arguments_spec as $argument_spec) {
+    foreach($arguments_spec as $option_spec) {
       $value_specified = (
         (
-          isset($argument_spec['short']) AND strlen($argument_spec['short']) 
-          AND isset($parsed_args['options'][$argument_spec['short']]) AND strlen($parsed_args['options'][$argument_spec['short']])
+          isset($option_spec['short']) AND strlen($option_spec['short']) 
+          AND isset($parsed_args['options'][$option_spec['short']]) AND strlen($parsed_args['options'][$option_spec['short']])
         ) OR (
-          isset($argument_spec['long']) AND strlen($argument_spec['long']) 
-          AND isset($parsed_args['options'][$argument_spec['long']]) AND strlen($parsed_args['options'][$argument_spec['long']])
+          isset($option_spec['long']) AND strlen($option_spec['long']) 
+          AND isset($parsed_args['options'][$option_spec['long']]) AND strlen($parsed_args['options'][$option_spec['long']])
         )
       );
 
-      if ($argument_spec['required']) {
+      if ($option_spec['required']) {
         if (!$value_specified) {
           // required, but not found
           $is_valid = false;
-          $this->errors[] = "Required value for argument ".$this->longOptionName($argument_spec)." not found.";
+          $this->errors[] = "Required value for argument ".$this->longOptionName($option_spec)." not found.";
         }
-      } else if (strlen($argument_spec['value_name'])) {
+      } else if (strlen($option_spec['value_name'])) {
         if (!$value_specified) {
           $switch_was_sepcified = (
-            isset($parsed_args['options'][$argument_spec['short']]) AND isset($parsed_args['options'][$argument_spec['short']])
-            OR isset($parsed_args['options'][$argument_spec['long']]) AND isset($parsed_args['options'][$argument_spec['long']])
+            isset($parsed_args['options'][$option_spec['short']]) AND isset($parsed_args['options'][$option_spec['short']])
+            OR isset($parsed_args['options'][$option_spec['long']]) AND isset($parsed_args['options'][$option_spec['long']])
           );
 
           if ($switch_was_sepcified) {
             // not required, but a value name is specified and none was given
             $is_valid = false;
-            $this->errors[] = "No value was specified for argument ".$this->longOptionName($argument_spec).".";
+            $this->errors[] = "No value was specified for argument ".$this->longOptionName($option_spec).".";
           }
         }
       }
@@ -103,7 +143,7 @@ class ArgsValidator {
 
     // find extra argument values that are not defined
     foreach ($parsed_args['options'] as $option_name => $value) {
-      $resolved_option_name = $arguments_spec->resolveOptionToLongOptionName($option_name);
+      $resolved_option_name = $arguments_spec->normalizeOptionName($option_name);
       if ($resolved_option_name === null) {
         $is_valid = false;
         $this->errors[] = "Unknown option ".$option_name.".";
@@ -115,15 +155,15 @@ class ArgsValidator {
     $usage_data = $arguments_spec->getUsage();
 
     // find required arguments
-    foreach ($usage_data['value_specs'] as $offset => $value_spec) {
-      if ($value_spec['required'] AND !isset($parsed_args['numbered_data'][$offset])) {
+    foreach ($usage_data['named_args_spec'] as $offset => $named_arg_spec) {
+      if ($named_arg_spec['required'] AND !isset($parsed_args['numbered_data'][$offset])) {
         $is_valid = false;
-        $this->errors[] = "No value for <".$value_spec['name']."> was provided.";
+        $this->errors[] = "No value for <".$named_arg_spec['name']."> was provided.";
       }
     }
 
     // find extra arguments
-    $expected_values_count = count($usage_data['value_specs']);
+    $expected_values_count = count($usage_data['named_args_spec']);
     if (($data_count = count($parsed_args['numbered_data'])) > $expected_values_count) {
       $extra_count = $data_count - $expected_values_count;
       $is_valid = false;
@@ -133,8 +173,15 @@ class ArgsValidator {
     return $is_valid;
   }
 
-  protected function longOptionName($argument_spec) {
-    return strlen($argument_spec['long']) ? $argument_spec['long'] : $argument_spec['short'];
+  /**
+   * builds the long option name (if specified) for the error message.  If not, then returns the short option name.
+   * 
+   * @param array $option_spec Option specification data
+   *
+   * @return string long or short option name
+   */
+  protected function longOptionName($option_spec) {
+    return strlen($option_spec['long']) ? $option_spec['long'] : $option_spec['short'];
   }
 
 }

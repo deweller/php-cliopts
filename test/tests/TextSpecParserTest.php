@@ -124,7 +124,7 @@ EOT;
       array(
         'use_argv_self' => true,
         'self'          => '{self}',
-        'value_specs'   => array(array('name'=>'url', 'required' => true)),
+        'named_args_spec'   => array(array('name'=>'url', 'required' => true)),
       )
     );
 
@@ -136,7 +136,7 @@ EOT;
       array(
         'use_argv_self' => true,
         'self'          => '{self}',
-        'value_specs'   => array(
+        'named_args_spec'   => array(
           array('name'=>'url', 'required' => true),
           array('name'=>'url2', 'required' => true),
         ),
@@ -151,7 +151,7 @@ EOT;
       array(
         'use_argv_self' => true,
         'self'          => '{self}',
-        'value_specs'   => array(
+        'named_args_spec'   => array(
           array('name'=>'url', 'required' => false),
           array('name'=>'url2', 'required' => true),
           array('name'=>'url3', 'required' => false),
@@ -167,7 +167,7 @@ EOT;
       array(
         'use_argv_self' => true,
         'self'          => '',
-        'value_specs'   => array(array('name'=>'url', 'required' => true)),
+        'named_args_spec'   => array(array('name'=>'url', 'required' => true)),
       )
     );
   } 
@@ -177,7 +177,7 @@ EOT;
   // function
 
   protected function checkSpecTextLine($text, $expected_array) {
-    $this->assertEquals($expected_array, TestTextSpecParser::createParameterSpecFromLine($text));
+    $this->assertEquals($expected_array, TestTextSpecParser::parseOptionsLine($text));
   }  
 
   protected function checkUsageLine($usage_line_text, $expected_data) {
@@ -194,8 +194,8 @@ EOT;
 
 class TestTextSpecParser extends TextSpecParser {
 
-  public static function createParameterSpecFromLine($line) {
-    return parent::createParameterSpecFromLine($line);
+  public static function parseOptionsLine($line) {
+    return parent::parseOptionsLine($line);
   }
 
   public static function parseUsageLine($usage_line_text) {

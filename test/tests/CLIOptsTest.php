@@ -116,7 +116,7 @@ class CLIOptsTest extends PHPUnit_Framework_TestCase {
 
     $this->assertEquals(false, $values['l']);
     $this->assertEquals(false, $values['list']);
-    $data = $values->getAllDataByOffset();
+    $data = $values->getAllArgumentValuesByOffset();
     $this->assertEquals('bar1', $data[0]);
     $this->assertEquals('bar1', $values['value1']);
   }
@@ -136,7 +136,7 @@ class CLIOptsTest extends PHPUnit_Framework_TestCase {
 
     $this->assertEquals(false, $values['l']);
     $this->assertEquals(false, $values['list']);
-    $data = $values->getAllDataByOffset();
+    $data = $values->getAllArgumentValuesByOffset();
     $this->assertEquals('bar1', $data[0]);
     $this->assertEquals('bar1', $values['value1']);
   }
@@ -205,7 +205,7 @@ class CLIOptsTest extends PHPUnit_Framework_TestCase {
     $this->assertEquals($expected_values, iterator_to_array($values));
 
     if ($expected_data_by_offset !== null) {
-      $this->assertEquals($expected_data_by_offset, $values->getAllDataByOffset());
+      $this->assertEquals($expected_data_by_offset, $values->getAllArgumentValuesByOffset());
     }
 
     return $values;

@@ -19,20 +19,9 @@ use \Exception;
 * TextSpecParser
 * 
 * Parses a human readable options specification into an ArgumentsSpec object
-* The spec begins whith an optional Usage Line.  Here is an example of a usage line:
-* Usage: process_files.php [options] <in_file1> [<in_file2>]
-* |      |                 |         |          |
-* |      |                 |         |          + Optional second argument named in_file2.
-* |      |                 |         |
-* |      |                 |         + Required first argument named in_file1
-* |      |                 |          
-* |      |                 + An options placeholder.  This may be ommitted.  It must come before any arguments.
-* |      |
-* |      + A script name.  This may be ommitted to use the default $_SERVER['argv'][0]
-* |
-* + The usage keyword.  This may be ommitted.
 *
-* In this example, 1 argument is expected and it will be assigned the name "in_file1".  An optional second argument 
+* See the README.md file for documentation on the usage line.
+*
 *
 * @license MIT
 */
@@ -47,6 +36,8 @@ class TextSpecParser {
   /**
    * Parses a human readable options specification
    * 
+   * Throws an exception on a malformed line
+   *
    * @param mixed $text_specification A human reable representation of options and arguments
    *
    * @return ArgumentsSpec An argument spec based on the text specification
@@ -73,7 +64,7 @@ class TextSpecParser {
         }
       }
 
-      if ($argument_spec = self::createParameterSpecFromLine($line)) {
+      if ($argument_spec = self::parseOptionsLine($line)) {
         $argument_spec_data['options'][] = $argument_spec;
       }
 
@@ -88,18 +79,84 @@ class TextSpecParser {
   // Private/Protected Methods
   //////////////////////////////////////////////////////////////////////////////////////
 
-
+  /**
+   * builds the default usage data
+   * 
+   * @return array the default usage data
+   */
   protected static function defaultUsageData() {
     return  array(
-      'use_argv_self' => true,
-      'self'          => null,
-      'value_specs'   => array(),
+      'use_argv_self'   => true,
+      'self'            => null,
+      'named_args_spec' => array(),
     );
   }
 
-  protected static function createParameterSpecFromLine($line) {
-    // --identifier <id> specify an id (required)
 
+  /**
+   * parse the usage line
+   * 
+   * @param text $line The usage line
+   *
+   * @return mixed the array of usage line data if this is a valid usage line.  false otherwise.
+   */
+  protected static function parseUsageLine($line) {
+    $regex = (
+      '/^'.
+      '(?:Usage:)?'.              // Usage:
+      '(?: ?(\{?[a-z_\.\/]+\}?))?'. // self name
+      '(?: ?\[options\]?)?'.      // options
+      '((?: ?\[?<[^>]+>\]?)+)?'.   // values
+      '$/i'
+    );
+    $matched = preg_match($regex, $line, $matches);
+
+    // if this is not a usage line, just return false
+    if (!$matched) { return false; }
+
+    $named_args_spec = array();
+    if (isset($matches[2])) {
+      $regex = (
+        '/'.
+        ' ?'.              // leading space
+        '(?|'.             // assign 1 of the following 2 groups to reference 1
+        '(\[<([^>]+)>\])'. // with brackets
+        '|'.               // or
+        '(<([^>]+)>)'.     // without brackets
+        ')'.
+        '/'
+      );
+      $matched = preg_match_all($regex, $matches[2], $all_value_name_matches, PREG_SET_ORDER);
+      if (!$matched) { throw new Exception("The usage line $line was not valid.", 1); }
+
+      foreach ($all_value_name_matches as $match) {
+        $named_args_spec[] = array(
+          'name'     => $match[2],
+          'required' => (substr($match[1], 0, 1) != '['),
+        );
+      }
+    }
+
+
+    $out = array(
+      'use_argv_self'   => (($matches[1] === '{self}' OR $matches[1] === '') ? true : false),
+      'self'            => $matches[1],
+      'named_args_spec' => $named_args_spec,
+    );
+    return $out;
+  }
+
+
+  /**
+   * Parse an options line
+   *
+   * Throws an exception on a malformed line
+   * 
+   * @param mixed $line Description.
+   *
+   * @return array the array of options line data if this is a valid options line.
+   */
+  protected static function parseOptionsLine($line) {
     $regex = (
       '/^'.
       '(?:-([A-z0-9]))?'.             // short param
@@ -127,50 +184,6 @@ class TextSpecParser {
     return $out;
   }
 
-  protected static function parseUsageLine($line) {
-    $regex = (
-      '/^'.
-      '(?:Usage:)?'.              // Usage:
-      '(?: ?(\{?[a-z_\.\/]+\}?))?'. // self name
-      '(?: ?\[options\]?)?'.      // options
-      '((?: ?\[?<[^>]+>\]?)+)?'.   // values
-      '$/i'
-    );
-    $matched = preg_match($regex, $line, $matches);
 
-    // if this is not a usage line, just return false
-    if (!$matched) { return false; }
-
-    $value_specs = array();
-    if (isset($matches[2])) {
-      $regex = (
-        '/'.
-        ' ?'.              // leading space
-        '(?|'.             // assign 1 of the following 2 groups to reference 1
-        '(\[<([^>]+)>\])'. // with brackets
-        '|'.               // or
-        '(<([^>]+)>)'.     // without brackets
-        ')'.
-        '/'
-      );
-      $matched = preg_match_all($regex, $matches[2], $all_value_name_matches, PREG_SET_ORDER);
-      if (!$matched) { throw new Exception("The usage line $line was not valid.", 1); }
-
-      foreach ($all_value_name_matches as $match) {
-        $value_specs[] = array(
-          'name'     => $match[2],
-          'required' => (substr($match[1], 0, 1) != '['),
-        );
-      }
-    }
-
-
-    $out = array(
-      'use_argv_self' => (($matches[1] === '{self}' OR $matches[1] === '') ? true : false),
-      'self'          => $matches[1],
-      'value_specs'   => $value_specs,
-    );
-    return $out;
-  }
 }
 
