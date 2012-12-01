@@ -89,7 +89,7 @@ Usage: process_files.php [options] <in_file1> [<in_file2>]
 |      |                 |          
 |      |                 + An options placeholder.  This may be ommitted.  It must come before any arguments.
 |      |
-|      + A script name.  This may be ommitted to use the default $_SERVER['argv'][0]
+|      + An optional script name.  Omit this or use {self} to show $_SERVER['argv'][0].
 |
 + The usage keyword.  This may be ommitted.
 ```
