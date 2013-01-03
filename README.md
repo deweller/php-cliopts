@@ -23,13 +23,13 @@ In its simplest form, the parser can be used with one line of php code:
 ```php
 
 // specify the spec as human readable text
-$values = CLIOpts\CLIOpts::createFromTextSpec("
+$values = CLIOpts\CLIOpts::run("
 {self} <in_filename>
 -i, --id <id> specify an id (required)
 -o, --out <out_filename> output filename
 -v be verbose
 -h, --help show this help
-")->run();
+");
 
 // show the values
 echo "The values you supplied are:\n";
@@ -69,7 +69,7 @@ The Human Readable Text Specification
 Let's look at the specification in the following bit of code:
 
 ```php
-$values = CLIOpts\CLIOpts::createFromTextSpec("
+$values = CLIOpts\CLIOpts::run("
   Usage: process_files.php [options] <in_file1> [<in_file2>]
   -i, --id <id> specify an id (required)
   -v be verbose
