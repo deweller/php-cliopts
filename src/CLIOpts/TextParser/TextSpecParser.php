@@ -139,8 +139,8 @@ class TextSpecParser {
 
 
     $out = array(
-      'use_argv_self'   => (($matches[1] === '{self}' OR $matches[1] === '') ? true : false),
-      'self'            => $matches[1],
+      'use_argv_self'   => ((!isset($matches[1]) OR $matches[1] === '{self}' OR $matches[1] === '') ? true : false),
+      'self'            => isset($matches[1]) ? $matches[1] : null,
       'named_args_spec' => $named_args_spec,
     );
     return $out;

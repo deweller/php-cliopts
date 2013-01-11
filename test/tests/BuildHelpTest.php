@@ -149,6 +149,19 @@ class BuildHelpTest extends PHPUnit_Framework_TestCase {
     );
   }
 
+  public function test_noSelfProvidedWithOptions() {
+    $this->validateHelpString(
+      "Usage:
+  -i <id> the id (required)
+      ",
+
+      "Usage:\n{$_SERVER['argv'][0]} [options]\n\n".
+      "Options:\n".
+      "-i <id> the id (required)",
+
+      true
+    );
+  }
 
 
   ////////////////////////////////////////////////////////////////////////
