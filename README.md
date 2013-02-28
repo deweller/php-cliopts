@@ -1,4 +1,4 @@
-php-cliopts [![Build Status](https://secure.travis-ci.org/deweller/php-cliopts.png)](https://travis-ci.org/deweller/php-cliopts)
+php-cliopts [![Build Status](https://secure.travis-ci.org/deweller/php-cliopts.png)](https://travis-ci.org/deweller/php-cliopts) ![project status](http://stillmaintained.com/deweller/php-cliopts.png)
 ===========
 
 A no-nonsense command-line options parser and help generator for PHP CLI apps.
